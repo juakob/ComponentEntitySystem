@@ -12,19 +12,19 @@ import openfl.errors.Error;
 class EntitySystem<T> implements ISystem
 {
 	var mProperties:Array<T>;
-	var mEntityes:Array<Entity>;
+	var mEntities:Array<Entity>;
 	var mEntityProperty:Map<Int,T>;
 	public function new() 
 	{
 		mProperties = new Array();
-		mEntityes = new Array();
+		mEntities = new Array();
 		mEntityProperty = new Map();
 		
 	}
 	public function add(aEntity:Entity,aFirst:Bool=false):Void
 	{
 		var node:T = cast(createNode(aEntity));
-		mEntityes.push(aEntity);
+		mEntities.push(aEntity);
 		if (aFirst)
 		{
 			mProperties.insert(0, node);
@@ -40,7 +40,7 @@ class EntitySystem<T> implements ISystem
 		if(node!=null){
 		onRemove(node);
 		mEntityProperty.remove(aEntity.id);
-		mEntityes.remove(aEntity);
+		mEntities.remove(aEntity);
 		mProperties.remove(node);
 		}
 		
@@ -75,7 +75,7 @@ class EntitySystem<T> implements ISystem
 	{
 		if (brodcast)
 		{
-			for (e in mEntityes) 
+			for (e in mEntities) 
 			{
 				message.to = e;
 				if (onEvent(message) == MessageResult.ABORT)

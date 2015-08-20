@@ -15,6 +15,7 @@ class SystemManager
 	private var mEntities:Map<Int,Entity>;
 	private var mSystems:Array<ISystem>;
 	private var mEventSystem:EventSystem;
+	private var mPropertiesPool:Map<Int,PropertyPool>;
 	
 	public static var i(get,null):SystemManager;
 	public static function get_i():SystemManager
@@ -32,6 +33,7 @@ class SystemManager
 		mListeners = new Map();
 		mEventSystem = new EventSystem();
 		mEntities = new Map();
+		mPropertiesPool = new Map();
 	}
 	public function update():Void
 	{
@@ -44,6 +46,26 @@ class SystemManager
 	{
 		mSystems.push(sys);
 		mSystemsDictionary.set(sys.id(), sys);
+	}
+	public function getProperty(aPorperty:Class<Property>):Property
+	{
+		var pool = mPropertiesPool.get((cast aPorperty).ID);
+		if (pool == null)
+		{
+			pool = new PropertyPool();
+			mPropertiesPool.set((cast aPorperty).ID, pool);
+		}
+		return pool.recycle(aPorperty);
+	}
+	public function storeProperty(aPorperty:Property):Void
+	{
+		var pool = mPropertiesPool.get(aPorperty.id());
+		if (pool == null)
+		{
+			pool = new PropertyPool();
+			mPropertiesPool.set(aPorperty.id(), pool);
+		}
+		pool.store(aPorperty);
 	}
 	public function addListener(aListener:IListener)
 	{

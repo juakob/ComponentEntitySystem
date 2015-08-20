@@ -82,12 +82,36 @@ class Entity
 		ES.i.deleteEntity(this);
 		
 	}
+	public function clone():Void
+	{
+		var clone:Entity = new Entity();
+		var keys = mProperties.keys();
+		for (key in keys) 
+		{
+			clone.mProperties.set(key, mProperties.get(key).clone());
+		}
+		for (systemId in Systems) 
+		{
+			SystemManager.i.addEntity(clone, systemId);
+		}
+		for (listenerId in Listeners) 
+		{
+			SystemManager.i.subscribeEntity(clone, listenerId);
+		}
+	}
+	
+	
+	
 	/**
 	 * Call kill or SystemManager.deleteEntity(aEntity:Entity) to destroy an entity
 	 */
-	
 	public function destroy() 
 	{
+		var properties = mProperties.iterator();
+		for (property in properties) 
+		{
+			ES.i.storeProperty(property);
+		}
 		mProperties = null;
 		Systems = null;
 	}

@@ -32,6 +32,7 @@ class ComponentMacro
         idCount++;
 		
 		//clone function
+		
 		var code:String;
 		var exp:Array<Expr> = new Array();
 		var nodeType:String =  Context.getLocalClass().toString();
@@ -46,6 +47,11 @@ class ComponentMacro
 		{
 			if (i.kind.match(FieldType.FFun))
 			{
+				if (i.name == "clone")
+				{
+					//clone is implemented
+					return fields;
+				}
 				continue;
 			}
 			code = "copy." + i.name+" = this." +  i.name;
