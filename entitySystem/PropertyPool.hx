@@ -14,14 +14,14 @@ class PropertyPool
 	
 	public function recycle(aType:Class<Property>):Property
 	{
-		//if (mPool.length > 0)
-		//{
-		//return mPool.pop();
-		//}
+		if (mPool.length > 0)
+		{
+		return mPool.pop();
+		}
 		return cast Type.createInstance(aType,[]);
 	}
 	public function store(aProperty:Property):Void
 	{
-	//	mPool.push(aProperty);
+		mPool.push(aProperty);
 	}
 }

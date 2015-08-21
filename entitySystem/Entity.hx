@@ -99,6 +99,14 @@ class Entity
 			SystemManager.i.subscribeEntity(clone, listenerId);
 		}
 	}
+	private static var listHelper:Array<Int> = new Array();
+	public function copy(aEntity:Entity):Void
+	{
+		for (systemId in aEntity.Systems) 
+		{
+			listHelper.push(aEntity.
+		}
+	}
 	
 	
 	
