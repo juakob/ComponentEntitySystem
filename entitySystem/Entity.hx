@@ -10,11 +10,14 @@ class Entity
 {
 	private static var s_id:Int = 0;
 	public var id:Int;
+	public var Alive:Bool;
+	public var InPool:Bool;
 	private var mProperties:Map<Int,Property>;
 	public var Systems(default, null):Array<Int>;
 	public var Listeners(default, null):Array<Int>;
 	public function new() 
 	{
+		Alive = true;
 		id =++s_id;
 		mProperties = new Map();
 		Systems = new Array();
@@ -99,14 +102,7 @@ class Entity
 			SystemManager.i.subscribeEntity(clone, listenerId);
 		}
 	}
-	private static var listHelper:Array<Int> = new Array();
-	public function copy(aEntity:Entity):Void
-	{
-		for (systemId in aEntity.Systems) 
-		{
-			listHelper.push(aEntity.
-		}
-	}
+	
 	
 	
 	
