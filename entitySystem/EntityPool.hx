@@ -12,7 +12,7 @@ class EntityPool
 		mPool = new Array();
 	}
 	
-	public function recycle(aType:Class<Property>):Entity
+	public function recycle():Entity
 	{
 		for (entity in mPool)
 		{
@@ -24,6 +24,7 @@ class EntityPool
 		}
 		var entity = new Entity();
 		entity.InPool = true;
+		mPool.push(entity);
 		return entity;
 	}
 }

@@ -138,4 +138,15 @@ class SystemManager
 		return mEntities.get(aId);
 	}
 	
+	public function destroy():Void
+	{
+		mSystemsDictionary=null;
+		mListeners=null;
+		mEntities=null;
+		mSystems=null;
+		mEventSystem=null;
+		mPropertiesPool = null;
+		ES.i = null;
+	}
+	
 }

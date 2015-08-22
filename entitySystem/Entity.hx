@@ -24,9 +24,19 @@ class Entity
 		Listeners = new Array();
 		SystemManager.i.addEntityToDictionary(this);//TODO Is this necesary?
 	}
-	public function add(aProperty:Property):Void
+	public function add(aProperty:Property, aCopy:Bool = false ):Void
 	{
-		mProperties.set(aProperty.id(), aProperty);
+		if (!aCopy)
+		{
+			mProperties.set(aProperty.id(), aProperty);
+		}else {
+			if (mProperties.exists(aProperty.id()))
+			{
+				mProperties.get(aProperty.id()).set(aProperty);
+			}else {
+				mProperties.set(aProperty.id(), aProperty.clone());
+			}
+		}
 	}
 	public function get(aId:Int):Property
 	{
@@ -111,6 +121,12 @@ class Entity
 	 */
 	public function destroy() 
 	{
+		Alive = false;
+		if (InPool)
+		{
+			Systems.splice(0, Systems.length);
+			return;
+		}
 		var properties = mProperties.iterator();
 		for (property in properties) 
 		{

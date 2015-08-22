@@ -41,7 +41,7 @@ class ComponentMacro
 		
 		exp.push(Context.parseInlineString(code, Context.currentPos()));
 		
-		 
+		 var cloneAlreadyDefinded:Bool = false;
 		var array =Context.getBuildFields();
 		for (i in array) 
 		{
@@ -50,7 +50,8 @@ class ComponentMacro
 				if (i.name == "clone")
 				{
 					//clone is implemented
-					return fields;
+					cloneAlreadyDefinded = true;
+					break;
 				}
 				continue;
 			}
@@ -60,18 +61,64 @@ class ComponentMacro
 		code = "return copy";
 		exp.push(Context.parseInlineString(code, Context.currentPos()));
 		   
-		
-		var c = macro : {
-			public function clone():Property{
-				$b { exp }
+		if (!cloneAlreadyDefinded)
+		{
+			var c = macro : {
+				public function clone():Property{
+					$b { exp }
+				}
+			}
+			
+			switch (c) {
+				case TAnonymous(cloneFunction):
+					fields=fields.concat(cloneFunction);
+				default:
+					throw 'unreachable';
 			}
 		}
 		
-		switch (c) {
-			case TAnonymous(cloneFunction):
-				return fields.concat(cloneFunction);
-			default:
-				throw 'unreachable';
+		//set function
+		
+		var code:String;
+		var exp:Array<Expr> = new Array();
+		var nodeType:String =  Context.getLocalClass().toString();
+		code = "var original:" + nodeType+" = cast aProperty";
+		
+		
+		exp.push(Context.parseInlineString(code, Context.currentPos()));
+		
+		 var setAlreadyDefinded:Bool = false;
+		var array =Context.getBuildFields();
+		for (i in array) 
+		{
+			if (i.kind.match(FieldType.FFun))
+			{
+				if (i.name == "set")
+				{
+					//set is implemented
+					setAlreadyDefinded = true;
+					break;
+				}
+				continue;
+			}
+			code = "this." + i.name+" = original." +  i.name;
+			exp.push(Context.parseInlineString(code, Context.currentPos()));
+		}
+		  
+		if (!setAlreadyDefinded)
+		{
+			var c = macro : {
+				public function set(aProperty:Property):Void{
+					$b { exp }
+				}
+			}
+			
+			switch (c) {
+				case TAnonymous(setFunction):
+					return fields.concat(setFunction);
+				default:
+					throw 'unreachable';
+			}
 		}
 		
 		return fields;

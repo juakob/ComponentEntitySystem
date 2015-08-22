@@ -5,7 +5,7 @@ import haxe.ds.IntMap;
  * ...
  * @author Joaquin
  */
-class State
+class EntityState
 {
 	private var mSystems:Array<SystemAux>;
 	private var mPropertiesToAdd:Array<PropertyAux>;
@@ -37,7 +37,7 @@ class State
 	{
 		for (property in mPropertiesToAdd) 
 		{
-			aEntity.add(property.property.clone());
+			aEntity.add(property.property,true);
 		}
 		for (property in mPropertiesToRemove) 
 		{
