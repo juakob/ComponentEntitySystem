@@ -32,7 +32,7 @@ class EntitySystem<T> implements ISystem
 		mProperties.push(node);
 		}
 		mEntityProperty.set(aEntity.id, node);
-		
+		onAdd(node);
 	}
 	public function remove(aEntity:Entity):Void
 	{
@@ -50,6 +50,10 @@ class EntitySystem<T> implements ISystem
 		throw new Error("override this function");
 	}
 	function onRemove(item:T):Void 
+	{
+		
+	}
+	function onAdd(item:T):Void 
 	{
 		
 	}
