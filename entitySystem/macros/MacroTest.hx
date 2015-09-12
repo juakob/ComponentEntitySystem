@@ -19,11 +19,11 @@ class MacroTest
     return macro $e + $e;
   }
   
-  macro public static function generateExtraMethods(aClass:Expr):Array<Field> {
+  macro public static function generateExtraMethods():Array<Field> {
 	  var code:String;
-	  var nodeType:String = ExprTools.toString(aClass);
+	  var nodeType:String = Context.getLocalClass().get().superClass.params[0].getParameters()[0];
 	  var exp:Array<Expr> = new Array();
-	   switch (haxe.macro.Context.getType(nodeType))
+	   switch (Context.getLocalClass().get().superClass.params[0])
 		{
 		  case TInst(cl, _):
 			  code = "var _node:" + nodeType+" = new " + nodeType+"()";

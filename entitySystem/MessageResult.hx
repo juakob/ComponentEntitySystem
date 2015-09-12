@@ -5,5 +5,5 @@ package entitySystem;
  * @author Joaquin
  */
 enum MessageResult{
-	ABORT; SUCCESS; NOT_IMPLEMENTED;
+	ABORT; SUCCESS; FAIL; NOT_IMPLEMENTED; NONE;
 }

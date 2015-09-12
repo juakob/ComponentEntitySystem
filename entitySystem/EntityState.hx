@@ -7,6 +7,7 @@ import haxe.ds.IntMap;
  */
 class EntityState
 {
+	public var name:String;
 	private var mSystems:Array<SystemAux>;
 	private var mPropertiesToAdd:Array<PropertyAux>;
 	private var mPropertiesToRemove:Array<Int>;
@@ -47,6 +48,28 @@ class EntityState
 		for (system in mSystems) 
 		{
 			if (system.add)
+			{
+				systemManager.addEntity(aEntity, system.id);
+			}else {
+				systemManager.removeEntity(aEntity, system.id);
+			}
+		}
+	}
+	public function removeState(aEntity:Entity):Void
+	{
+		for (property in mPropertiesToAdd) 
+		{
+			aEntity.remove(property.property.id());
+		}
+		//TODO re add is not implemented
+		//for (property in mPropertiesToRemove) 
+		//{
+			//aEntity.remove(property);
+		//}
+		var systemManager:SystemManager = SystemManager.i;
+		for (system in mSystems) 
+		{
+			if (!system.add)
 			{
 				systemManager.addEntity(aEntity, system.id);
 			}else {

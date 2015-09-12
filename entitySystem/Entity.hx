@@ -48,7 +48,6 @@ class Entity
 	}
 	public function addSystem(aSystemId:Int):Bool
 	{
-		//TODO check if this could leave the state unstable
 		if (Systems.indexOf(aSystemId) != -1)
 		{
 			return false;

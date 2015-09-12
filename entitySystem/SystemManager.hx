@@ -47,6 +47,14 @@ class SystemManager
 		mSystems.push(sys);
 		mSystemsDictionary.set(sys.id(), sys);
 	}
+	/**
+	 * Groups dont get updated. Use groups to query specific data of a group o entities
+	 * @param	sys
+	 */
+	public function addGroup(sys:ISystem):Void
+	{
+		mSystemsDictionary.set(sys.id(), sys);
+	}
 	public function getProperty(aPorperty:Class<Property>):Property
 	{
 		var pool = mPropertiesPool.get((cast aPorperty).ID);
@@ -104,9 +112,9 @@ class SystemManager
 	}
 	
 
-	public function dispatch(aMessage:Message, aBrodcast:Bool = false):Void
+	public function dispatch(aMessage:Message, aBrodcast:Bool = false):MessageResult
 	{
-		mEventSystem.dispach(aMessage, aBrodcast);
+		return mEventSystem.dispach(aMessage, aBrodcast);
 	}
 	public function subscribe(aEvent:String,aSystemId:Int):Void
 	{
@@ -136,6 +144,10 @@ class SystemManager
 	public function getEntity(aId:Int):Entity
 	{
 		return mEntities.get(aId);
+	}
+	public function getSystem(aId:Int):ISystem
+	{
+		return mSystemsDictionary.get(aId);
 	}
 	
 	public function destroy():Void
