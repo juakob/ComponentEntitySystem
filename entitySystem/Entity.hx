@@ -134,4 +134,9 @@ class Entity
 		mProperties = null;
 		Systems = null;
 	}
+	
+	public function hasProperty(id:Int) :Bool
+	{
+		return mProperties.exists(id);
+	}
 }

@@ -1,4 +1,5 @@
 package entitySystem;
+import entitySystem.properties.ComplexProperty;
 import haxe.ds.IntMap;
 
 /**
@@ -11,29 +12,47 @@ class EntityState
 	private var mSystems:Array<SystemAux>;
 	private var mPropertiesToAdd:Array<PropertyAux>;
 	private var mPropertiesToRemove:Array<Int>;
+	private var mComplexProperties:Array<ComplexProperty>;
+	private var mListener:Array<SystemAux>;
 	public function new() 
 	{
 		mSystems = new Array();
 		mPropertiesToAdd = new Array();
 		mPropertiesToRemove = new Array();
+		mComplexProperties = new Array();
+		mListener = new Array();
 	}
 	public function addSystem(aSystem:Int, aSafeAdd:Bool = false):Void
 	{
 		mSystems.push(new SystemAux(aSystem, aSafeAdd, true));
 	}
-	public function addProperty(aProperty:Property, aOverride:Bool = true):Void
-	{
-		mPropertiesToAdd.push(new PropertyAux(aProperty, aOverride));
-	}
+	
 	public function removeSystem(aSystem:Int):Void
 	{
 		mSystems.push(new SystemAux(aSystem, false, false));
 	}
-
+	public function addListeneing(aSystem:Int, aSafeAdd:Bool = false):Void
+	{
+		mListener.push(new SystemAux(aSystem, aSafeAdd, true));
+	}
+	
+	public function removeListeneing(aSystem:Int):Void
+	{
+		mListener.push(new SystemAux(aSystem, false, false));
+	}
+	public function addProperty(aProperty:Property, aOverride:Bool = true):Void
+	{
+		mPropertiesToAdd.push(new PropertyAux(aProperty, aOverride));
+	}
 	public function removeProperty(aId:Int):Void
 	{
 		mPropertiesToRemove.push(aId);
 	}
+	public function addComplexProperty(aProperty:ComplexProperty, aOverride:Bool = true):Void
+	{
+		mComplexProperties.push(aProperty);
+	}
+	
 	public function applyState(aEntity:Entity):Void
 	{
 		for (property in mPropertiesToAdd) 
@@ -44,6 +63,15 @@ class EntityState
 		{
 			aEntity.remove(property);
 		}
+		for (complexProp in mComplexProperties) 
+		{
+			if (aEntity.hasProperty(complexProp.id))
+			{
+				complexProp.set(aEntity, aEntity.get(complexProp.id));
+			}else {
+				aEntity.add(complexProp.clone(aEntity));
+			}
+		}
 		var systemManager:SystemManager = SystemManager.i;
 		for (system in mSystems) 
 		{
@@ -52,6 +80,15 @@ class EntityState
 				systemManager.addEntity(aEntity, system.id);
 			}else {
 				systemManager.removeEntity(aEntity, system.id);
+			}
+		}
+		for (listener in mListener) 
+		{
+			if (listener.add)
+			{
+				systemManager.subscribeEntity(aEntity, listener.id);
+			}else {
+				systemManager.unsubscribeEntity(aEntity, listener.id);
 			}
 		}
 	}
