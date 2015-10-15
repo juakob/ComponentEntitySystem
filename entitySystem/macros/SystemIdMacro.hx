@@ -28,6 +28,8 @@ class SystemIdMacro
 					pos: pos
 				} ); 
         idCount++;
+		
+		
         return fields;	
 	}	
 	

@@ -53,7 +53,7 @@ class PrEntityState implements Property
 		}
 		return false;
 	}
-	public function setDefinition(aDefinition:String:aState:String, aEntity:Entity):Bool
+	public function setDefinition(aDefinition:String,aState:String, aEntity:Entity):Bool
 	{
 		for (definition in mDefinitions) 
 		{

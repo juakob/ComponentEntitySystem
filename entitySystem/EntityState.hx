@@ -113,6 +113,7 @@ class EntityState
 				systemManager.removeEntity(aEntity, system.id);
 			}
 		}
+		//TODO update with all the stuff in applyState
 	}
 }
 

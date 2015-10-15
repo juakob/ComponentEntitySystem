@@ -10,6 +10,7 @@ import openfl.errors.Error;
  */
 @:autoBuild(entitySystem.macros.SystemIdMacro.build())
 @:autoBuild(entitySystem.macros.MacroTest.generateExtraMethods())
+@:autoBuild(entitySystem.macros.MacroTest.createFilterFunctions())
 class EntitySystem<T> implements ISystem
 {
 	var mProperties:Array<T>;
@@ -47,6 +48,10 @@ class EntitySystem<T> implements ISystem
 		
 	}
 	private function createNode(aEntity:Entity):PropertyNode
+	{
+		throw new Error("override this function");
+	}
+	private function createNodeFilter(aEntity:Entity, aFilter:Array<Int>):PropertyNode
 	{
 		throw new Error("override this function");
 	}

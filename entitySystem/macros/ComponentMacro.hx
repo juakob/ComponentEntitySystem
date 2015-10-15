@@ -42,9 +42,12 @@ class ComponentMacro
 				}
 			}
 		}
+		var tint = TPath({ pack : [], name : "Int", params : [], sub : null });
+		fields.push( { name : "versionId", doc : null, meta : [], access : [APublic], kind : FVar(tint, { expr: EConst(CInt(Std.string("0"))), pos: pos } ) , pos: pos } );
+		fields.push( { name : "nextProperty", doc : null, meta : [], access : [APublic], kind : FVar(TPath({ pack : [], name : "Property", params : [], sub : null }), {expr: EConst(CIdent("null")), pos: pos}) , pos: pos });
 		if (!idAlreadyDefinded)
 		{
-			var tint = TPath({ pack : [], name : "Int", params : [], sub : null });
+			
 				fields.push( { name : "ID", doc : null, meta : [], access : [AStatic, APublic], kind : FVar(tint, {expr: EConst(CInt(Std.string(idCount))), pos: pos}) , pos: pos });
 				fields.push( 
 					{ 

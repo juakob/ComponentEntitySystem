@@ -19,7 +19,7 @@ class MacroTest
     return macro $e + $e;
   }
   
-  macro public static function generateExtraMethods():Array<Field> {
+  macro public static function generateExtraMethods():Array<Field> { 
 	  var code:String;
 	  var nodeType:String = Context.getLocalClass().get().superClass.params[0].getParameters()[0];
 	  var exp:Array<Expr> = new Array();
@@ -36,7 +36,7 @@ class MacroTest
 			
 			for (i in array) 
 			{
-				if (i.name == "owner")
+				if (i.name == "owner"||i.name == "NodeVersion"||i.name == "nextNode")
 				{
 					continue;
 				}
@@ -55,6 +55,10 @@ class MacroTest
 				$b { exp }
 			}
 		}
+		
+		
+		 
+				
 		switch (c) {
 			
 			case TAnonymous(fields):
@@ -62,25 +66,114 @@ class MacroTest
 			default:
 				throw 'unreachable';
 		}
+		//FunctionArg
+		
+		
 	}
 	
-  macro static public function test(aNode:Class<PropertyNode>)
-  {
-	//var instanceType.createInstance(aNode,_)
 	
-	 switch (haxe.macro.Context.getType("MotionNode"))
-    {
-      case TInst(cl,_):
-        var array = cl.get().fields.get();
-		for (i in array) 
+  macro static public function createFilterFunctions():Array<Field> 
+  {
+	  var code:String;
+	  var nodeType:String = Context.getLocalClass().get().superClass.params[0].getParameters()[0];
+	  var exp:Array<Expr> = new Array();
+	  var filterCode:Array<String> = new Array();
+	  var arguments:Array<FunctionArg> = new Array();
+	  var tint = TPath({ pack : [], name : "Int", params : [], sub : null });
+	   switch (Context.getLocalClass().get().superClass.params[0])
 		{
-			trace(cast(Type.resolveClass(i.type.getParameters()[0].toString())));
+			case TInst(cl, _):
+				code = "var _node:" + nodeType+" = new " + nodeType+"()";
+				exp.push(Context.parseInlineString(code, Context.currentPos()));
+				
+				//filter code
+				filterCode.push("var _filter:Array<Int> = new Array()");
+				//
+				
+				code = "_node.owner = aEntity ";
+				exp.push(Context.parseInlineString(code, Context.currentPos()));
+				
+				var array = cl.get().fields.get();
+				var counter:Int = 0;
+				for (i in array) 
+				{
+					if (i.name == "owner"||i.name == "NodeVersion"||i.name == "nextNode")
+					{
+						continue;
+					}
+					code = "_node." + i.name+" = cast(aEntity.getVersion(" + i.type.getParameters()[0].toString() + ".ID, aFilter["+counter+"])) ";
+					exp.push(Context.parseInlineString(code, Context.currentPos()));
+					//filter code
+					arguments.push( { name:"" + i.name, type:tint, value : {expr: EConst(CInt("0")), pos: Context.currentPos()} } );
+					filterCode.push("_filter.push(" + i.name+")");
+					//
+				}
+				
+				code = "return _node";
+				exp.push(Context.parseInlineString(code, Context.currentPos()));
+				
+				//filter code
+				filterCode.push("return _filter");
+				//
+			 
+		  case _: 
+			  trace("Macro error wrong type, look at : " + Context.currentPos);
 		}
-      case _:
+	  var fields = Context.getBuildFields();
+	  	var treturn = TPath( { pack : [], name : "Array", params : [TPType(tint)], sub : null } );
+		var filterExpresion:Array<Expr> = new Array();
+		var pos:Position = Context.currentPos();
+		for (code in filterCode) 
+		{
+			filterExpresion.push(Context.parseInlineString(code, pos ));
+		}
+	
+		var expresion:Expr =macro $b { filterExpresion };
+		
+	
+			fields.push( 
+	        	{ 
+		        	name: "filter", 
+		        	doc: null, 
+		        	meta:[], 
+		        	access: [APublic, AStatic], 
+		        	kind: FFun(
+		        	{ 
+			        	ret: treturn, params: [], args: arguments, expr: expresion
+			        } ),
+					pos: Context.currentPos()
+				} );
+	
+				
+		var c = macro : {
+			override private function createNodeFilter(aEntity:entitySystem.Entity,aFilter:Array<Int>):entitySystem.PropertyNode{ 
+				$b { exp }
+			}
+		}
+		
+		
+		 
+				
+		switch (c) {
+			
+			case TAnonymous(extra):
+				return fields.concat(extra);
+			default:
+				throw 'unreachable';
+		}
+  }
+  static function makeType()
+  {
+  }
+  static function makeEnumField(name, kind) {
+    return {
+      name: name,
+      doc: null,
+      meta: [],
+      access: [],
+      kind: kind,
+      pos: Context.currentPos()
     }
-	 var parsed_expr: Expr=Context.parse("var t:String=\"doc\"", Context.currentPos());
-	var a_var = macro {parsed_expr: ${parsed_expr} };
-	return a_var;
   }
 /*  macro static public function
   build(fieldName:String):Array<Field> {
