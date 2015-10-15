@@ -14,7 +14,6 @@ class SystemManager
 	private var mListeners:Map<Int,IListener>;
 	private var mEntities:Map<Int,Entity>;
 	private var mSystems:Array<ISystem>;
-	private var mEventSystem:EventSystem;
 	private var mPropertiesPool:Map<Int,PropertyPool>;
 	
 	public static var i(get,null):SystemManager;
@@ -31,7 +30,6 @@ class SystemManager
 		mSystems = new Array();
 		mSystemsDictionary = new Map();
 		mListeners = new Map();
-		mEventSystem = new EventSystem();
 		mEntities = new Map();
 		mPropertiesPool = new Map();
 	}
@@ -86,12 +84,9 @@ class SystemManager
 		mSystemsDictionary.get(aSystemId).add(aEntity, aFirst);
 		}
 	}
-	public function subscribeEntity(aEntity:Entity, aListenerId:Int):Void
+	public function subscribeEntity(aEntity:Entity, aMessage:String , aListenerId:Int):Void
 	{
-		if (aEntity.addListener(aListenerId))
-		{
-			mListeners.get(aListenerId).add(aEntity);
-		}
+		aEntity.addListener(aMessage, aListenerId);
 	}
 	
 	//Look if this is needed
@@ -105,38 +100,32 @@ class SystemManager
 		aEntity.removeSystem(aSystemId);
 		mSystemsDictionary.get(aSystemId).remove(aEntity);
 	}
-	public function unsubscribeEntity(aEntity:Entity, aListener:Int)
+	public function unsubscribeEntity(aEntity:Entity,aMessage:String, aListener:Int)
 	{
-		aEntity.removeListener(aListener);
-		mListeners.get(aListener).remove(aEntity);
+		aEntity.removeListener(aMessage,aListener);
 	}
 	
 
-	public function dispatch(aMessage:Message, aBrodcast:Bool = false):MessageResult
+	public function dispatch(aMessage:Message):Void
 	{
-		return mEventSystem.dispach(aMessage, aBrodcast);
-	}
-	public function subscribe(aEvent:String,aSystemId:Int):Void
-	{
-		mEventSystem.subscribe(aEvent, mListeners.get(aSystemId));
-	}
-	public function unsubscribe(aEvent:String,aSystemId:Int):Void
-	{
-		mEventSystem.remove(aEvent, mListeners.get(aSystemId));
+		var entity = aMessage.to;
+		if (entity.listening(aMessage.event))
+		{
+			var listeners:Array<Int> = entity.listeners(aMessage.event);
+			for (listener in listeners) 
+			{
+				mListeners.get(listener).handleEvent(aMessage);
+			}
+		}
+		
 	}
 
-	
 	public function deleteEntity(aEntity:Entity):Void
 	{
 		var systems:Array<Int> = aEntity.Systems;
 		for (i in systems) 
 		{
 			mSystemsDictionary.get(i).remove(aEntity);
-		}
-		var listeners:Array<Int> = aEntity.Listeners;
-		for (i in listeners) 
-		{
-			mListeners.get(i).remove(aEntity);
 		}
 		mEntities.remove(aEntity.id);
 		aEntity.destroy();
@@ -156,7 +145,6 @@ class SystemManager
 		mListeners=null;
 		mEntities=null;
 		mSystems=null;
-		mEventSystem=null;
 		mPropertiesPool = null;
 		ES.i = null;
 	}

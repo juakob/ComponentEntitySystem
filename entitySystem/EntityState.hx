@@ -13,7 +13,7 @@ class EntityState
 	private var mPropertiesToAdd:Array<PropertyAux>;
 	private var mPropertiesToRemove:Array<Int>;
 	private var mComplexProperties:Array<ComplexProperty>;
-	private var mListener:Array<SystemAux>;
+	private var mListener:Array<ListenerAux>;
 	public function new() 
 	{
 		mSystems = new Array();
@@ -31,14 +31,14 @@ class EntityState
 	{
 		mSystems.push(new SystemAux(aSystem, false, false));
 	}
-	public function addListeneing(aSystem:Int, aSafeAdd:Bool = false):Void
+	public function addListeneing(aSystem:Int, aMessage:String):Void
 	{
-		mListener.push(new SystemAux(aSystem, aSafeAdd, true));
+		mListener.push(new ListenerAux(aSystem, aMessage, true));
 	}
 	
-	public function removeListeneing(aSystem:Int):Void
+	public function removeListeneing(aSystem:Int,aMessage:String):Void
 	{
-		mListener.push(new SystemAux(aSystem, false, false));
+		mListener.push(new ListenerAux(aSystem, aMessage, false));
 	}
 	public function addProperty(aProperty:Property, aOverride:Bool = true):Void
 	{
@@ -86,9 +86,9 @@ class EntityState
 		{
 			if (listener.add)
 			{
-				systemManager.subscribeEntity(aEntity, listener.id);
+				systemManager.subscribeEntity(aEntity, listener.message,listener.id);
 			}else {
-				systemManager.unsubscribeEntity(aEntity, listener.id);
+				systemManager.unsubscribeEntity(aEntity,listener.message, listener.id);
 			}
 		}
 	}
@@ -129,7 +129,18 @@ private class SystemAux
 		add = aAdd;
 	}
 }
-
+private class ListenerAux
+{
+	public var id:Int;
+	public var message:String;
+	public var add:Bool; //false equals to remove;
+	public function new(aId:Int, aMessage:String,aAdd:Bool)
+	{
+		id = aId;
+		message = aMessage;
+		add = aAdd;
+	}
+}
 private class PropertyAux
 {
 	public var property:Property;

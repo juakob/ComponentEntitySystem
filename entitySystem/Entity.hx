@@ -14,14 +14,14 @@ class Entity
 	public var InPool:Bool;
 	private var mProperties:Map<Int,Property>;
 	public var Systems(default, null):Array<Int>;
-	public var Listeners(default, null):Array<Int>;
+	public var Listening(default, null):Map<String,Array<Int>>;
 	public function new() 
 	{
 		Alive = true;
 		id =++s_id;
 		mProperties = new Map();
 		Systems = new Array();
-		Listeners = new Array();
+		Listening = new Map();
 		SystemManager.i.addEntityToDictionary(this);//TODO Is this necesary?
 	}
 	public function add(aProperty:Property, aCopy:Bool = false ):Void
@@ -42,6 +42,20 @@ class Entity
 	{
 		return mProperties.get(aId);
 	}
+	public function getVersion(aId:Int,version:Int):Property
+	{
+		var prop:Property = mProperties.get(aId);
+		var first = prop;
+		while (prop != null)
+		{
+			if (prop.versionId == version)
+			{
+				return prop;
+			}
+			prop = prop.nextProperty;
+		}
+		return first;
+	}
 	public function remove(aId:Int):Void
 	{
 		mProperties.remove(aId);
@@ -55,22 +69,27 @@ class Entity
 		Systems.push(aSystemId);
 		return true;
 	}
-	public function addListener(aListenerId:Int):Bool
+	public function addListener(aMessage:String,aListenerId:Int):Void
 	{
-		if (Listeners.indexOf(aListenerId) != -1)
+		if (!Listening.exists(aMessage))
 		{
-			return false;
+			
+			Listening.set(aMessage, [aListenerId]);
+			return;
 		}
-		Listeners.push(aListenerId);
-		return true;
+		Listening.get(aMessage).push(aListenerId);
 	}
 	public function inSystem(aSystemId:Int):Bool
 	{
 		return Systems.indexOf(aSystemId) > -1;
 	}
-	public function listening(aSystemId:Int):Bool
+	public inline function listening(aMessage:String):Bool
 	{
-		return Listeners.indexOf(aSystemId) > -1;
+		return Listening.exists(aMessage);
+	}
+	public inline function listeners(aMessage:String):Array<Int>
+	{
+		return Listening.get(aMessage);
 	}
 	
 	public function removeSystem(id:Int):Void 
@@ -81,12 +100,13 @@ class Entity
 			Systems.splice(index, 1);
 		}
 	}
-	public function removeListener(id:Int):Void
+	public function removeListener(aMessage:String,aListenerId:Int):Void
 	{
-		var index:Int = Listeners.indexOf(id);
+		var listener = Listening.get(aMessage);
+		var index:Int = listener.indexOf(aListenerId);
 		if (index > -1)
 		{
-			Listeners.splice(index, 1);
+			listener.splice(index, 1);
 		}
 	}
 	public function kill():Void
@@ -94,23 +114,23 @@ class Entity
 		ES.i.deleteEntity(this);
 		
 	}
-	public function clone():Void
-	{
-		var clone:Entity = new Entity();
-		var keys = mProperties.keys();
-		for (key in keys) 
-		{
-			clone.mProperties.set(key, mProperties.get(key).clone());
-		}
-		for (systemId in Systems) 
-		{
-			SystemManager.i.addEntity(clone, systemId);
-		}
-		for (listenerId in Listeners) 
-		{
-			SystemManager.i.subscribeEntity(clone, listenerId);
-		}
-	}
+	//public function clone():Void
+	//{
+		//var clone:Entity = new Entity();
+		//var keys = mProperties.keys();
+		//for (key in keys) 
+		//{
+			//clone.mProperties.set(key, mProperties.get(key).clone());
+		//}
+		//for (systemId in Systems) 
+		//{
+			//SystemManager.i.addEntity(clone, systemId);
+		//}
+		//for (listenerId in Listeners) 
+		//{
+			//SystemManager.i.subscribeEntity(clone, listenerId);
+		//}
+	//}
 	
 	
 	
@@ -133,6 +153,7 @@ class Entity
 		}
 		mProperties = null;
 		Systems = null;
+		Listening = null;
 	}
 	
 	public function hasProperty(id:Int) :Bool
