@@ -17,17 +17,24 @@ class Message
 		from = aFrom;
 		data = aData;
 	}
-	private static var i_weak:Message=new Message(null,null,null);
-	public static function clearWeak():Void
+	private static var i_weak:Array<Message> = new Array();
+	private static var index:Int=0;
+	public static inline function clearWeak():Void
 	{
-		i_weak = null;
+		index = 0;
 	}
 	public static function weak(aEvent:String, aTo:Entity, aFrom:Entity, aData:Dynamic = null):Message
 	{
-		i_weak.event = aEvent;
-		i_weak.to = aTo;
-		i_weak.from = aFrom;
-		i_weak.data = aData;
-		return i_weak;
+		if (index >= i_weak.length)
+		{
+			i_weak.push(new Message(null, null, null));
+		}
+		var message = i_weak[index];
+		message.event = aEvent;
+		message.to = aTo;
+		message.from = aFrom;
+		message.data = aData;
+		++index;
+		return message;
 	}
 }

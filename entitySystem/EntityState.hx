@@ -31,7 +31,7 @@ class EntityState
 	{
 		mSystems.push(new SystemAux(aSystem, false, false));
 	}
-	public function addListeneing(aSystem:Int, aMessage:String):Void
+	public function addListeneing( aMessage:String,aSystem:Int):Void
 	{
 		mListener.push(new ListenerAux(aSystem, aMessage, true));
 	}
@@ -113,7 +113,96 @@ class EntityState
 				systemManager.removeEntity(aEntity, system.id);
 			}
 		}
-		//TODO update with all the stuff in applyState
+		
+		for (listener in mListener) 
+		{
+			if (!listener.add)
+			{
+				systemManager.subscribeEntity(aEntity, listener.message,listener.id);
+			}else {
+				systemManager.unsubscribeEntity(aEntity,listener.message, listener.id);
+			}
+		}
+	}
+	public function clone():EntityState
+	{
+		var cl:EntityState = new EntityState();
+		cl.name = name;
+		for (system in mSystems) 
+		{
+			cl.mSystems.push(system.clone());
+		}
+		for (property in mPropertiesToAdd)
+		{
+			cl.mPropertiesToAdd.push(property.clone());
+		}
+		for (property in mPropertiesToRemove)
+		{
+			cl.mPropertiesToRemove.push(property);
+		}
+		for (id in mPropertiesToRemove) 
+		{
+			cl.mPropertiesToRemove.push(id);
+		}
+		for (property in mComplexProperties)
+		{
+			cl.mComplexProperties.push(property.cloneF());
+		}
+		for (listener in mListener)
+		{
+			cl.mListener.push(listener.clone());
+		}
+		return cl;
+	}
+	public function set(entityState:EntityState):Void
+	{
+		//var remove:Array<Int> = new Array();
+		//var counter:Int;
+		//var remove:Bool;
+		//for (system in mSystems) 
+		//{
+			//remove = true;
+			//for (systemCopy in entityState.mSystems) 
+			//{
+				//if (system.id == systemCopy)
+				//{
+					//system.add = systemCopy.add;
+					//remove = false;
+					//break;
+				//}
+			//}
+			//if (remove)
+			//{
+				//remove.push(counter);
+			//}
+			//++counter;
+		//}
+		//var offset = 0;
+		//for (id in remove) 
+		//{
+			//mSystems.splice(id - offset, 1);
+			//--offset;
+		//}
+		//for (property in mPropertiesToAdd)
+		//{
+			//cl.mPropertiesToAdd.push(property.clone());
+		//}
+		//for (property in mPropertiesToRemove)
+		//{
+			//cl.mPropertiesToRemove.push(property.clone());
+		//}
+		//for (id in mPropertiesToRemove) 
+		//{
+			//cl.mPropertiesToRemove.push(id);
+		//}
+		//for (property in mComplexProperties)
+		//{
+			//cl.mComplexProperties.push(property.clone());
+		//}
+		//for (listener in mListener)
+		//{
+			//cl.mListener.push(listener.clone());
+		//}
 	}
 }
 
@@ -128,6 +217,12 @@ private class SystemAux
 		safeAdd = aSafeAdd;
 		add = aAdd;
 	}
+	public function clone():SystemAux
+	{
+		return new SystemAux(id, safeAdd, add);
+	}
+	
+	
 }
 private class ListenerAux
 {
@@ -140,14 +235,26 @@ private class ListenerAux
 		message = aMessage;
 		add = aAdd;
 	}
+	public function clone():ListenerAux
+	{
+		return new ListenerAux(id, message, add);
+	}
+
 }
 private class PropertyAux
 {
+	public var id:Int;
 	public var property:Property;
 	public var override_:Bool;
 	public function new(aProperty:Property, aOverride:Bool)
 	{
+		id = aProperty.id();
 		property = aProperty;
 		override_ = aOverride;
 	}
+	public function clone():PropertyAux
+	{
+		return new PropertyAux(property.clone(), override_);
+	}
+	
 }

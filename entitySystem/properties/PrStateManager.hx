@@ -114,6 +114,40 @@ class PrStateManager implements Property
 			}
 		}
 	}
+	
+	/* INTERFACE entitySystem.Property */
+
+	public function clone():Property 
+	{
+		var cl:PrStateManager = new PrStateManager();
+		for (slot in mSlots)
+		{
+			cl.mSlots.push(slot.clone());
+		}
+		for (state in mStates)
+		{
+			cl.mStates.push(state.clone());
+		}
+		return cl;
+	}
+	
+	public function set(aProperty:Property):Void 
+	{
+		//TODO deep set of all states
+		var copy:PrStateManager = cast aProperty;
+		for (slot in mSlots) 
+		{
+			for (slotCopy in copy.mSlots) 
+			{
+				if (slot.name == slotCopy.name)
+				{
+					slot.state = getState(slotCopy.state.name);
+					slot.disable = slotCopy.disable;
+					break;
+				}
+			}
+		}
+	}
 	 private function getState(aName:String):StateGroup
 	{
 		for (state in mStates) 
@@ -150,6 +184,18 @@ class Slot
 	{
 		
 	}
+	public function clone():Slot 
+	{
+		var cl:Slot = new Slot();
+		cl.name = name;
+		cl.tag = tag;
+		if (state != null)
+		{
+			cl.state = state.clone();
+		}
+		cl.disable = disable;
+		return cl;
+	}
 }
 class StateGroup
 {
@@ -172,5 +218,15 @@ class StateGroup
 	public function new()
 	{
 		states = new Array();
+	}
+	public function clone():StateGroup
+	{
+		var cl:StateGroup = new StateGroup();
+		cl.name = name;
+		for (state in states) 
+		{
+			cl.states.push(state.clone());
+		}
+		return cl;
 	}
 }

@@ -73,11 +73,18 @@ class Entity
 	{
 		if (!Listening.exists(aMessage))
 		{
-			
 			Listening.set(aMessage, [aListenerId]);
 			return;
 		}
-		Listening.get(aMessage).push(aListenerId);
+		var listeners = Listening.get(aMessage);
+		for (listener in listeners)
+		{
+			if (listener == aListenerId)
+			{
+				return;
+			}
+		}
+		listeners.push(aListenerId);
 	}
 	public function inSystem(aSystemId:Int):Bool
 	{
@@ -85,7 +92,7 @@ class Entity
 	}
 	public inline function listening(aMessage:String):Bool
 	{
-		return Listening.exists(aMessage);
+		return Alive&&Listening.exists(aMessage);
 	}
 	public inline function listeners(aMessage:String):Array<Int>
 	{

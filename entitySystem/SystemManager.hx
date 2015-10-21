@@ -39,6 +39,7 @@ class SystemManager
 		{
 			sys.update();
 		}
+		Message.clearWeak();
 	}
 	public function add(sys:ISystem):Void
 	{
@@ -117,7 +118,7 @@ class SystemManager
 				mListeners.get(listener).handleEvent(aMessage);
 			}
 		}
-		
+		Message.clearWeak();
 	}
 
 	public function deleteEntity(aEntity:Entity):Void

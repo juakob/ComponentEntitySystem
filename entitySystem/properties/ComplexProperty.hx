@@ -13,5 +13,13 @@ class ComplexProperty
 	{
 		
 	}
+	public function cloneF():ComplexProperty
+	{
+		var cl:ComplexProperty = new ComplexProperty();
+		cl.clone = clone;
+		cl.set = set;
+		cl.id = id;
+		return cl;
+	}
 	
 }
