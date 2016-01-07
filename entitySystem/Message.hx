@@ -10,12 +10,18 @@ class Message
 	public var to:Entity;
 	public var from:Entity;
 	public var data:Dynamic;
-	public function new(aEvent:String, aTo:Entity, aFrom:Entity, aData:Dynamic= null)
+	public var broadcast:Bool;
+	public function new(aEvent:String, aTo:Entity, aFrom:Entity, aData:Dynamic = null, aBroadcast:Bool = false )
 	{
 		event = aEvent;
 		to = aTo;
 		from = aFrom;
 		data = aData;
+		broadcast = aBroadcast;
+	}
+	public function clone():Message
+	{
+		return new Message(event,to,from,data,broadcast);
 	}
 	private static var i_weak:Array<Message> = new Array();
 	private static var index:Int=0;
@@ -23,7 +29,7 @@ class Message
 	{
 		index = 0;
 	}
-	public static function weak(aEvent:String, aTo:Entity, aFrom:Entity, aData:Dynamic = null):Message
+	public static function weak(aEvent:String, aTo:Entity, aFrom:Entity, aData:Dynamic = null,aBroadcast:Bool=false):Message
 	{
 		if (index >= i_weak.length)
 		{
@@ -34,6 +40,7 @@ class Message
 		message.to = aTo;
 		message.from = aFrom;
 		message.data = aData;
+		message.broadcast = aBroadcast;
 		++index;
 		return message;
 	}

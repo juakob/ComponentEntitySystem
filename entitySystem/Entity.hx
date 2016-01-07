@@ -14,7 +14,8 @@ class Entity
 	public var InPool:Bool;
 	private var mProperties:Map<Int,Property>;
 	public var Systems(default, null):Array<Int>;
-	public var Listening(default, null):Map<String,Array<Int>>;
+	public var Listening(default, null):Map<String,Array<ListenerAux>>;
+	private var mBroadcast:Array<BroadcastAux>;
 	public function new() 
 	{
 		Alive = true;
@@ -22,6 +23,7 @@ class Entity
 		mProperties = new Map();
 		Systems = new Array();
 		Listening = new Map();
+		mBroadcast = new Array();
 		SystemManager.i.addEntityToDictionary(this);//TODO Is this necesary?
 	}
 	public function add(aProperty:Property, aCopy:Bool = false ):Void
@@ -69,22 +71,32 @@ class Entity
 		Systems.push(aSystemId);
 		return true;
 	}
-	public function addListener(aMessage:String,aListenerId:Int):Void
+	public function addListener(aMessage:String, aListenerId:Int, aOverrideData:Dynamic = null, aBroadcast:Bool = false ):Bool
 	{
 		if (!Listening.exists(aMessage))
 		{
-			Listening.set(aMessage, [aListenerId]);
-			return;
+			Listening.set(aMessage, [new ListenerAux(aListenerId, aOverrideData, aBroadcast)]);
+			if (aBroadcast)
+			{
+				mBroadcast.push(new BroadcastAux(aListenerId,aMessage));
+			}
+			return true;
 		}
 		var listeners = Listening.get(aMessage);
 		for (listener in listeners)
 		{
-			if (listener == aListenerId)
+			if (listener.id == aListenerId)
 			{
-				return;
+				return false; //already added
 			}
 		}
-		listeners.push(aListenerId);
+		
+		listeners.push(new ListenerAux(aListenerId, aOverrideData,aBroadcast));
+		if (aBroadcast)
+		{
+			mBroadcast.push(new BroadcastAux(aListenerId,aMessage));
+		}
+		return true;
 	}
 	public function inSystem(aSystemId:Int):Bool
 	{
@@ -94,7 +106,7 @@ class Entity
 	{
 		return Alive&&Listening.exists(aMessage);
 	}
-	public inline function listeners(aMessage:String):Array<Int>
+	public inline function listeners(aMessage:String):Array<ListenerAux>
 	{
 		return Listening.get(aMessage);
 	}
@@ -107,14 +119,40 @@ class Entity
 			Systems.splice(index, 1);
 		}
 	}
-	public function removeListener(aMessage:String,aListenerId:Int):Void
+	public function removeListener(aMessage:String,aListenerId:Int):Bool
 	{
-		var listener = Listening.get(aMessage);
-		var index:Int = listener.indexOf(aListenerId);
+		var listeners = Listening.get(aMessage);
+		var index:Int = -1; 
+		var counter:Int = 0;
+		var broadcast:Bool=false;
+		for (listener in listeners)
+		{
+			if (listener.id == aListenerId)
+			{
+				broadcast = listener.broadcast;
+				index = counter;
+				break;
+			}
+			++counter;
+		}
 		if (index > -1)
 		{
-			listener.splice(index, 1);
+			listeners.splice(index, 1);
 		}
+		if (broadcast)
+		{
+			for (listener in mBroadcast)
+			{
+				if (listener.id == aListenerId)
+				{
+					index = counter;
+					break;
+				}
+				++counter;
+			}
+			mBroadcast.splice(index,1);
+		}
+		return broadcast;
 	}
 	public function kill():Void
 	{
@@ -161,10 +199,37 @@ class Entity
 		mProperties = null;
 		Systems = null;
 		Listening = null;
+		for (listener in mBroadcast) 
+		{
+			ES.i.removeBroadcast(listener.message, this);
+		}
+		mBroadcast = null;
 	}
 	
 	public function hasProperty(id:Int) :Bool
 	{
 		return mProperties.exists(id);
+	}
+}
+class ListenerAux
+{	
+	public var id:Int;
+	public var data:Dynamic;
+	public var broadcast:Bool;
+	public function new(aId:Int,aData:Dynamic=null,aBroadcast:Bool=false)
+	{
+		id = aId;
+		data = aData;
+		broadcast = aBroadcast;
+	}
+}
+class BroadcastAux
+{
+	public var message:String;
+	public var id:Int;
+	public function new(aId:Int,aMessage:String)
+	{
+		id = aId;
+		message = aMessage;
 	}
 }

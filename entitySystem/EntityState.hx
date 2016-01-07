@@ -1,5 +1,6 @@
 package entitySystem;
 import entitySystem.properties.ComplexProperty;
+import entitySystem.SystemManager.ES;
 import haxe.ds.IntMap;
 
 /**
@@ -14,6 +15,7 @@ class EntityState
 	private var mPropertiesToRemove:Array<Int>;
 	private var mComplexProperties:Array<ComplexProperty>;
 	private var mListener:Array<ListenerAux>;
+	private var mMessages:Array<Message>;
 	public function new() 
 	{
 		mSystems = new Array();
@@ -21,6 +23,7 @@ class EntityState
 		mPropertiesToRemove = new Array();
 		mComplexProperties = new Array();
 		mListener = new Array();
+		mMessages = new Array();
 	}
 	public function addSystem(aSystem:Int, aSafeAdd:Bool = false):Void
 	{
@@ -31,9 +34,9 @@ class EntityState
 	{
 		mSystems.push(new SystemAux(aSystem, false, false));
 	}
-	public function addListeneing( aMessage:String,aSystem:Int):Void
+	public function addListeneing( aMessage:String,aSystem:Int,aOverrideData:Dynamic=null):Void
 	{
-		mListener.push(new ListenerAux(aSystem, aMessage, true));
+		mListener.push(new ListenerAux(aSystem, aMessage, true,aOverrideData));
 	}
 	
 	public function removeListeneing(aSystem:Int,aMessage:String):Void
@@ -51,6 +54,10 @@ class EntityState
 	public function addComplexProperty(aProperty:ComplexProperty, aOverride:Bool = true):Void
 	{
 		mComplexProperties.push(aProperty);
+	}
+	public function addMessage(aMessage:Message):Void
+	{
+		mMessages.push(aMessage);
 	}
 	
 	public function applyState(aEntity:Entity):Void
@@ -86,23 +93,27 @@ class EntityState
 		{
 			if (listener.add)
 			{
-				systemManager.subscribeEntity(aEntity, listener.message,listener.id);
+				systemManager.subscribeEntity(aEntity, listener.message,listener.id,listener.overrideData);
 			}else {
 				systemManager.unsubscribeEntity(aEntity,listener.message, listener.id);
 			}
 		}
+		for (message in mMessages)
+		{
+			message.to = aEntity;
+			message.from = aEntity;
+			ES.i.dispatch(message);
+		}
 	}
+	
 	public function removeState(aEntity:Entity):Void
 	{
 		for (property in mPropertiesToAdd) 
 		{
 			aEntity.remove(property.property.id());
 		}
-		//TODO re add is not implemented
-		//for (property in mPropertiesToRemove) 
-		//{
-			//aEntity.remove(property);
-		//}
+		//re add is not implemented for properties, don't think is needed
+	
 		var systemManager:SystemManager = SystemManager.i;
 		for (system in mSystems) 
 		{
@@ -151,6 +162,10 @@ class EntityState
 		for (listener in mListener)
 		{
 			cl.mListener.push(listener.clone());
+		}
+		for (message in mMessages) 
+		{
+			cl.mMessages.push(message.clone());
 		}
 		return cl;
 	}
@@ -229,15 +244,17 @@ private class ListenerAux
 	public var id:Int;
 	public var message:String;
 	public var add:Bool; //false equals to remove;
-	public function new(aId:Int, aMessage:String,aAdd:Bool)
+	public var overrideData:Dynamic;
+	public function new(aId:Int, aMessage:String,aAdd:Bool,aOverrideData:Dynamic=null)
 	{
 		id = aId;
 		message = aMessage;
 		add = aAdd;
+		overrideData = aOverrideData;
 	}
 	public function clone():ListenerAux
 	{
-		return new ListenerAux(id, message, add);
+		return new ListenerAux(id, message, add,overrideData);
 	}
 
 }
@@ -246,11 +263,13 @@ private class PropertyAux
 	public var id:Int;
 	public var property:Property;
 	public var override_:Bool;
+	
 	public function new(aProperty:Property, aOverride:Bool)
 	{
 		id = aProperty.id();
 		property = aProperty;
 		override_ = aOverride;
+		
 	}
 	public function clone():PropertyAux
 	{

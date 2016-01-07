@@ -15,6 +15,7 @@ class SystemManager
 	private var mEntities:Map<Int,Entity>;
 	private var mSystems:Array<ISystem>;
 	private var mPropertiesPool:Map<Int,PropertyPool>;
+	private var mBroadcast:Map<String,Array<Entity>>;
 	
 	public static var i(get,null):SystemManager;
 	public static function get_i():SystemManager
@@ -32,6 +33,7 @@ class SystemManager
 		mListeners = new Map();
 		mEntities = new Map();
 		mPropertiesPool = new Map();
+		mBroadcast = new Map();
 	}
 	public function update():Void
 	{
@@ -39,7 +41,7 @@ class SystemManager
 		{
 			sys.update();
 		}
-		Message.clearWeak();
+		processMessages();
 	}
 	public function add(sys:ISystem):Void
 	{
@@ -82,12 +84,21 @@ class SystemManager
 	{
 		if (aEntity.addSystem(aSystemId))
 		{
-		mSystemsDictionary.get(aSystemId).add(aEntity, aFirst);
+			mSystemsDictionary.get(aSystemId).add(aEntity, aFirst);
 		}
 	}
-	public function subscribeEntity(aEntity:Entity, aMessage:String , aListenerId:Int):Void
+	public function subscribeEntity(aEntity:Entity, aMessage:String , aListenerId:Int, aOverrideData:Dynamic = null, aBroadcast:Bool = false):Void
 	{
-		aEntity.addListener(aMessage, aListenerId);
+		
+		if ( aEntity.addListener(aMessage, aListenerId, aOverrideData,aBroadcast) && aBroadcast)
+		{
+			if (mBroadcast.exists(aMessage))
+			{
+				mBroadcast.get(aMessage).push(aEntity);
+			}else {
+				mBroadcast.set(aMessage, [aEntity]);
+			}
+		}
 	}
 	
 	//Look if this is needed
@@ -103,22 +114,70 @@ class SystemManager
 	}
 	public function unsubscribeEntity(aEntity:Entity,aMessage:String, aListener:Int)
 	{
-		aEntity.removeListener(aMessage,aListener);
+		if (aEntity.removeListener(aMessage, aListener))
+		{
+			removeBroadcast(aMessage, aEntity);
+		}
 	}
 	
-
-	public function dispatch(aMessage:Message):Void
+	var mMessages:Array<Message> = new Array();
+	var counter:Int = 0;
+	public function dispatch(aMessage:Message, aInstant:Bool = true ):Void
+	{
+		if (aInstant)
+		{
+			sendMessage(aMessage);
+			return;
+		}
+		if (mMessages.length <= counter)
+		{
+			mMessages.push(aMessage);	
+		}else
+		{
+			mMessages[counter] = aMessage;
+		}
+		++counter;
+	}
+	private function processMessages():Void
+	{
+		for (i in 0...counter) 
+		{
+			sendMessage(mMessages[i]);
+		}
+		counter = 0;
+		Message.clearWeak();
+	}
+	private inline function sendMessage(aMessage:Message):Void
+	{
+		if (aMessage.broadcast)
+		{
+			var entities = mBroadcast.get(aMessage.event);
+			for (entity in entities) 
+			{
+				aMessage.to = entity;
+				sendTo(aMessage);
+			}
+		}else {
+			sendTo(aMessage);	
+		}
+	}
+	private inline function sendTo(aMessage:Message):Void
 	{
 		var entity = aMessage.to;
-		if (entity.listening(aMessage.event))
+		var dataCopy = aMessage.data;
+		if (entity!=null&&entity.listening(aMessage.event))
 		{
-			var listeners:Array<Int> = entity.listeners(aMessage.event);
+			var listeners:Array<ListenerAux> = entity.listeners(aMessage.event);
 			for (listener in listeners) 
 			{
-				mListeners.get(listener).handleEvent(aMessage);
+				if (listener.data != null)
+				{
+					aMessage.data = listener.data;
+				}
+				mListeners.get(listener.id).handleEvent(aMessage);
+				aMessage.data = dataCopy;
 			}
 		}
-		Message.clearWeak();
 	}
 
 	public function deleteEntity(aEntity:Entity):Void
@@ -130,6 +189,20 @@ class SystemManager
 		}
 		mEntities.remove(aEntity.id);
 		aEntity.destroy();
+	}
+	public function removeBroadcast(aEvent:String, aEntity:Entity):Void
+	{
+		var entities = mBroadcast.get(aEvent);
+		var counter:Int = 0;
+		for (entity in entities) 
+		{
+			if (entity.id == aEntity.id)
+			{
+				entities.splice(counter, 1);
+				return;
+			}
+			++counter;
+		}
 	}
 	public function getEntity(aId:Int):Entity
 	{

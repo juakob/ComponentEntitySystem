@@ -36,7 +36,7 @@ class MacroTest
 			
 			for (i in array) 
 			{
-				if (i.name == "owner"||i.name == "NodeVersion"||i.name == "nextNode")
+				if (i.name == "owner"||i.name == "NodeVersion"||i.name == "nextNode"||i.meta.has("local"))
 				{
 					continue;
 				}
@@ -97,7 +97,7 @@ class MacroTest
 				var counter:Int = 0;
 				for (i in array) 
 				{
-					if (i.name == "owner"||i.name == "NodeVersion"||i.name == "nextNode")
+					if (i.name == "owner"||i.name == "NodeVersion"||i.name == "nextNode"||i.meta.has("local"))
 					{
 						continue;
 					}

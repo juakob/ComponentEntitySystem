@@ -58,6 +58,10 @@ class PrStateManager implements Property
 			}
 		}
 	}
+	public function currentState(aSlot:String):String
+	{
+		return getSlot(aSlot).state.name;
+	}
 	public function change(aSlot:String, aState:String, aEntity:Entity):Void
 	{
 		var slot = getSlot(aSlot);
@@ -141,7 +145,10 @@ class PrStateManager implements Property
 			{
 				if (slot.name == slotCopy.name)
 				{
-					slot.state = getState(slotCopy.state.name);
+					if (slotCopy.state != null)
+					{
+						slot.state = getState(slotCopy.state.name);
+					}
 					slot.disable = slotCopy.disable;
 					break;
 				}
