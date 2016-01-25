@@ -121,7 +121,7 @@ class SystemManager
 	}
 	
 	var mMessages:Array<Message> = new Array();
-	var counter:Int = 0;
+	
 	public function dispatch(aMessage:Message, aInstant:Bool = true ):Void
 	{
 		if (aInstant)
@@ -129,23 +129,48 @@ class SystemManager
 			sendMessage(aMessage);
 			return;
 		}
-		if (mMessages.length <= counter)
+		if (aMessage.delay <= 0 ||mMessages.length==0)
 		{
-			mMessages.push(aMessage);	
-		}else
-		{
-			mMessages[counter] = aMessage;
+			mMessages.unshift(aMessage);
+		}else {
+			insertMessageInOrder(aMessage);
 		}
-		++counter;
+	}
+	private  function insertMessageInOrder(aMessage:Message):Void
+	{
+		var index:Int = mMessages.length - 1;
+		while (index >= 0)
+		{
+			if (mMessages[index].delay < aMessage.delay)
+			{
+				mMessages.insert(index + 1, aMessage);
+				return;
+			}
+			--index;
+		}
+		mMessages.unshift(aMessage);
 	}
 	private function processMessages():Void
 	{
-		for (i in 0...counter) 
+		while(mMessages.length>0) 
 		{
-			sendMessage(mMessages[i]);
+			if (mMessages[0].delay-1/60 <= 0)
+			{
+				sendMessage(mMessages.shift());
+			}else {
+				updateMessageDelay();
+				break;
+			}
 		}
-		counter = 0;
+	
 		Message.clearWeak();
+	}
+	private inline function updateMessageDelay():Void
+	{
+		for (message in mMessages)
+		{
+			message.delay -= 1 / 60;
+		}
 	}
 	private inline function sendMessage(aMessage:Message):Void
 	{

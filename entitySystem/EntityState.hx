@@ -34,12 +34,12 @@ class EntityState
 	{
 		mSystems.push(new SystemAux(aSystem, false, false));
 	}
-	public function addListeneing( aMessage:String,aSystem:Int,aOverrideData:Dynamic=null):Void
+	public function addListeneing( aMessage:String,aSystem:Int,aOverrideData:Dynamic=null,aBroadcast:Bool=false):Void
 	{
-		mListener.push(new ListenerAux(aSystem, aMessage, true,aOverrideData));
+		mListener.push(new ListenerAux(aSystem, aMessage, true,aOverrideData,aBroadcast));
 	}
 	
-	public function removeListeneing(aSystem:Int,aMessage:String):Void
+	public function removeListeneing(aMessage:String,aSystem:Int):Void
 	{
 		mListener.push(new ListenerAux(aSystem, aMessage, false));
 	}
@@ -93,7 +93,7 @@ class EntityState
 		{
 			if (listener.add)
 			{
-				systemManager.subscribeEntity(aEntity, listener.message,listener.id,listener.overrideData);
+				systemManager.subscribeEntity(aEntity, listener.message,listener.id,listener.overrideData,listener.broadcast);
 			}else {
 				systemManager.unsubscribeEntity(aEntity,listener.message, listener.id);
 			}
@@ -129,7 +129,7 @@ class EntityState
 		{
 			if (!listener.add)
 			{
-				systemManager.subscribeEntity(aEntity, listener.message,listener.id);
+				systemManager.subscribeEntity(aEntity, listener.message,listener.id,listener.overrideData,listener.broadcast);
 			}else {
 				systemManager.unsubscribeEntity(aEntity,listener.message, listener.id);
 			}
@@ -245,12 +245,14 @@ private class ListenerAux
 	public var message:String;
 	public var add:Bool; //false equals to remove;
 	public var overrideData:Dynamic;
-	public function new(aId:Int, aMessage:String,aAdd:Bool,aOverrideData:Dynamic=null)
+	public var broadcast:Bool;
+	public function new(aId:Int, aMessage:String,aAdd:Bool,aOverrideData:Dynamic=null,aBroadcast:Bool=false)
 	{
 		id = aId;
 		message = aMessage;
 		add = aAdd;
 		overrideData = aOverrideData;
+		broadcast = aBroadcast;
 	}
 	public function clone():ListenerAux
 	{

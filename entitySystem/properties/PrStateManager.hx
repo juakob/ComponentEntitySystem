@@ -69,8 +69,20 @@ class PrStateManager implements Property
 		{
 			slot.state.unapplyState(aEntity);
 		}
+		
 		slot.state = getState(aState);
-		slot.state.applyState(aEntity);
+		if (!slot.disable)
+		{
+			slot.state.applyState(aEntity);
+		}
+	}
+	public inline function applyState(aState:String, aEntity:Entity):Void
+	{
+		getState(aState).applyState(aEntity);
+	}
+	public inline function unapplyState(aState:String, aEntity:Entity):Void
+	{
+		getState(aState).unapplyState(aEntity);
 	}
 	public function disable(aSlot:String, aEntity:Entity):Void
 	{
