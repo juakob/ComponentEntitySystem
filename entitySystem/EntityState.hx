@@ -1,7 +1,7 @@
 package entitySystem;
 import entitySystem.properties.ComplexProperty;
 import entitySystem.SystemManager.ES;
-import haxe.ds.IntMap;
+
 
 /**
  * ...

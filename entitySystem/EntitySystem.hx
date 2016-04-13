@@ -3,7 +3,7 @@ package entitySystem;
 import entitySystem.macros.SystemIdMacro;
 import entitySystem.Message;
 import entitySystem.MessageResult;
-import openfl.errors.Error;
+
 /**
  * ...
  * @author Joaquin
@@ -49,11 +49,11 @@ class EntitySystem<T> implements ISystem
 	}
 	private function createNode(aEntity:Entity):PropertyNode
 	{
-		throw new Error("override this function");
+		throw "override this function";
 	}
 	private function createNodeFilter(aEntity:Entity, aFilter:Array<Int>):PropertyNode
 	{
-		throw new Error("override this function");
+		throw "override this function";
 	}
 	function onRemove(item:T):Void 
 	{
@@ -78,7 +78,7 @@ class EntitySystem<T> implements ISystem
 	public function id():Int 
 	{
 		//if macros work correctly this should be override
-		throw new Error("Override this method");
+		throw "Override this method";
 	}
 	
 	public function handleEvent(message:Message,brodcast:Bool=false):MessageResult 

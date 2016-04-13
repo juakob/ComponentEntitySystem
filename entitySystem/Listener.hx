@@ -4,7 +4,7 @@ import entitySystem.Message;
 import entitySystem.MessageResult;
 import entitySystem.Entity;
 import haxe.macro.Expr;
-import openfl.errors.Error;
+
 
 /**
  * ...
@@ -27,7 +27,7 @@ class Listener implements IListener
 	public function id():Int 
 	{
 		//if macros work correctly this should be override
-		throw new Error("Override this method");
+		throw "Override this method";
 	}
 	
 	public function add(aEntity:Entity, aFirst:Bool = false):Void 
