@@ -3,6 +3,7 @@ import entitySystem.macros.SystemIdMacro;
 import entitySystem.Message;
 import entitySystem.MessageResult;
 import entitySystem.Entity;
+import haxe.macro.Expr;
 import openfl.errors.Error;
 
 /**
@@ -12,6 +13,10 @@ import openfl.errors.Error;
 @:autoBuild(entitySystem.macros.SystemIdMacro.build()) //use the same id sequence to avoid overlap
 class Listener implements IListener
 {
+	macro static function get(aType:Expr)
+	{
+		return macro { cast aMessage.to.get($aType); };
+	}
 	var mEntityes:Array<Entity>;
 	public function new() 
 	{
@@ -35,23 +40,6 @@ class Listener implements IListener
 		mEntityes.remove(aEntity);
 	}
 	
-	public function handleEvent(aMessage:Message, aBroadcast:Bool = false):MessageResult 
-	{
-		if (aBroadcast)
-		{
-			for (e in mEntityes) 
-			{
-				aMessage.to = e;
-				if (onEvent(aMessage) == MessageResult.ABORT)
-				{
-					return MessageResult.SUCCESS;
-				}
-			}
-		}else {
-			return onEvent(aMessage);
-		}
-		return SUCCESS;
-	}
 	public function onEvent(aMessage:Message):MessageResult
 	{
 		return NOT_IMPLEMENTED;

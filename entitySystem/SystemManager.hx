@@ -1,4 +1,5 @@
 package entitySystem;
+import com.TimeManager;
 import entitySystem.Entity;
 
 /**
@@ -90,11 +91,19 @@ class SystemManager
 	public function subscribeEntity(aEntity:Entity, aMessage:String , aListenerId:Int, aOverrideData:Dynamic = null, aBroadcast:Bool = false):Void
 	{
 		
-		if ( aEntity.addListener(aMessage, aListenerId, aOverrideData,aBroadcast) && aBroadcast)
+		if ( aEntity.addListener(aMessage, aListenerId, aOverrideData,aBroadcast) && aBroadcast )
 		{
 			if (mBroadcast.exists(aMessage))
 			{
-				mBroadcast.get(aMessage).push(aEntity);
+				var list = mBroadcast.get(aMessage);
+				for (entity in list)
+				{
+					if (entity.id == aEntity.id)
+					{
+						return;
+					}
+				}
+				list.push(aEntity);
 			}else {
 				mBroadcast.set(aMessage, [aEntity]);
 			}
@@ -124,7 +133,7 @@ class SystemManager
 	
 	public function dispatch(aMessage:Message, aInstant:Bool = true ):Void
 	{
-		if (aInstant)
+		if (aInstant&&aMessage.delay==0)
 		{
 			sendMessage(aMessage);
 			return;
@@ -154,7 +163,7 @@ class SystemManager
 	{
 		while(mMessages.length>0) 
 		{
-			if (mMessages[0].delay-1/60 <= 0)
+			if (mMessages[0].delay-TimeManager.delta <= 0)
 			{
 				sendMessage(mMessages.shift());
 			}else {
@@ -169,12 +178,12 @@ class SystemManager
 	{
 		for (message in mMessages)
 		{
-			message.delay -= 1 / 60;
+			message.delay -= TimeManager.delta;
 		}
 	}
-	private inline function sendMessage(aMessage:Message):Void
+	private inline  function sendMessage(aMessage:Message):Void
 	{
-		if (aMessage.broadcast)
+		if (aMessage.broadcast && mBroadcast.exists(aMessage.event))
 		{
 			var entities = mBroadcast.get(aMessage.event);
 			for (entity in entities) 
@@ -182,11 +191,13 @@ class SystemManager
 				aMessage.to = entity;
 				sendTo(aMessage);
 			}
+			aMessage.reset();
 		}else {
 			sendTo(aMessage);	
+			aMessage.reset();
 		}
 	}
-	private inline function sendTo(aMessage:Message):Void
+	private  function sendTo(aMessage:Message):Void
 	{
 		var entity = aMessage.to;
 		var dataCopy = aMessage.data;
@@ -199,7 +210,7 @@ class SystemManager
 				{
 					aMessage.data = listener.data;
 				}
-				mListeners.get(listener.id).handleEvent(aMessage);
+				mListeners.get(listener.id).onEvent(aMessage);
 				aMessage.data = dataCopy;
 			}
 		}

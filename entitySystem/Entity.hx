@@ -71,6 +71,7 @@ class Entity
 		Systems.push(aSystemId);
 		return true;
 	}
+
 	public function addListener(aMessage:String, aListenerId:Int, aOverrideData:Dynamic = null, aBroadcast:Bool = false ):Bool
 	{
 		if (!Listening.exists(aMessage))
@@ -78,7 +79,7 @@ class Entity
 			Listening.set(aMessage, [new ListenerAux(aListenerId, aOverrideData, aBroadcast)]);
 			if (aBroadcast)
 			{
-				mBroadcast.push(new BroadcastAux(aListenerId,aMessage));
+				mBroadcast.push(new BroadcastAux(aListenerId, aMessage));
 			}
 			return true;
 		}
@@ -141,16 +142,27 @@ class Entity
 		}
 		if (broadcast)
 		{
+			var indexs:Array<Int> = [];
 			for (listener in mBroadcast)
 			{
-				if (listener.id == aListenerId)
+				if (listener.message == aMessage)
 				{
-					index = counter;
-					break;
+					if (listener.id == aListenerId)
+					{
+						indexs.push(counter);
+					}else {
+						broadcast = false;	//we have more than one subscription
+					}
 				}
 				++counter;
 			}
-			mBroadcast.splice(index,1);
+			counter = 0;
+			for (index in indexs) 
+			{
+				mBroadcast.splice(index-counter, 1);
+				--counter;
+			}
+			
 		}
 		return broadcast;
 	}
