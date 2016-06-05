@@ -20,7 +20,7 @@ class ComponentMacro
 		var setAlreadyDefinded:Bool = false;
 		for (i in fields)
 		{
-			if (i.kind.match(FieldType.FFun))
+			if (i.kind.getName()=="FFun") 
 			{
 				if (i.name == "clone")
 				{
@@ -80,12 +80,19 @@ class ComponentMacro
 		var array =Context.getBuildFields();
 		for (i in array) 
 		{
-			if (i.kind.match(FieldType.FFun))
+			
+			if (i.kind.getName()=="FFun")
 			{
 				continue;
+			}else if (i.meta.length>0 && i.meta[0].name=="array")
+			{	
+				code = "for(item in this." + i.name+") {  copy." +i.name+".push(item); }" ;
+				exp.push(Context.parseInlineString(code, Context.currentPos()));	
+				
+			}else{
+				code = "copy." + i.name+" = this." +  i.name;
+				exp.push(Context.parseInlineString(code, Context.currentPos()));
 			}
-			code = "copy." + i.name+" = this." +  i.name;
-			exp.push(Context.parseInlineString(code, Context.currentPos()));
 		}
 		code = "return copy";
 		exp.push(Context.parseInlineString(code, Context.currentPos()));
@@ -120,7 +127,7 @@ class ComponentMacro
 		var array =Context.getBuildFields();
 		for (i in array) 
 		{
-			if (i.kind.match(FieldType.FFun))
+			if (i.kind.getName()=="FFun")
 			{
 
 				continue;

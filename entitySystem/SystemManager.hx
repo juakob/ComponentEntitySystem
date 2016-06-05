@@ -13,7 +13,7 @@ class SystemManager
 {
 	private var mSystemsDictionary:Map<Int,ISystem>;
 	private var mListeners:Map<Int,IListener>;
-	private var mEntities:Map<Int,Entity>;
+	//private var mEntities:Map<Int,Entity>;
 	private var mSystems:Array<ISystem>;
 	private var mPropertiesPool:Map<Int,PropertyPool>;
 	private var mBroadcast:Map<String,Array<Entity>>;
@@ -32,7 +32,7 @@ class SystemManager
 		mSystems = new Array();
 		mSystemsDictionary = new Map();
 		mListeners = new Map();
-		mEntities = new Map();
+		//mEntities = new Map();
 		mPropertiesPool = new Map();
 		mBroadcast = new Map();
 	}
@@ -57,26 +57,26 @@ class SystemManager
 	{
 		mSystemsDictionary.set(sys.id(), sys);
 	}
-	public function getProperty(aPorperty:Class<Property>):Property
-	{
-		var pool = mPropertiesPool.get((cast aPorperty).ID);
-		if (pool == null)
-		{
-			pool = new PropertyPool();
-			mPropertiesPool.set((cast aPorperty).ID, pool);
-		}
-		return pool.recycle(aPorperty);
-	}
-	public function storeProperty(aPorperty:Property):Void
-	{
-		var pool = mPropertiesPool.get(aPorperty.id());
-		if (pool == null)
-		{
-			pool = new PropertyPool();
-			mPropertiesPool.set(aPorperty.id(), pool);
-		}
-		pool.store(aPorperty);
-	}
+	//public function getProperty(aPorperty:Class<Property>):Property
+	//{
+		//var pool = mPropertiesPool.get((cast aPorperty).ID);
+		//if (pool == null)
+		//{
+			//pool = new PropertyPool();
+			//mPropertiesPool.set((cast aPorperty).ID, pool);
+		//}
+		//return pool.recycle(aPorperty);
+	//}
+	//public function storeProperty(aPorperty:Property):Void
+	//{
+		//var pool = mPropertiesPool.get(aPorperty.id());
+		//if (pool == null)
+		//{
+			//pool = new PropertyPool();
+			//mPropertiesPool.set(aPorperty.id(), pool);
+		//}
+		//pool.store(aPorperty);
+	//}
 	public function addListener(aListener:IListener)
 	{
 		mListeners.set(aListener.id(), aListener);
@@ -111,10 +111,10 @@ class SystemManager
 	}
 	
 	//Look if this is needed
-	public function addEntityToDictionary(aEntity:Entity):Void
-	{
-		mEntities.set(aEntity.id, aEntity);
-	}
+	//public function addEntityToDictionary(aEntity:Entity):Void
+	//{
+		//mEntities.set(aEntity.id, aEntity);
+	//}
 	
 	public function removeEntity(aEntity:Entity, aSystemId:Int) 
 	{
@@ -143,6 +143,19 @@ class SystemManager
 			mMessages.unshift(aMessage);
 		}else {
 			insertMessageInOrder(aMessage);
+		}
+	}
+	public function killPendingMessages(aEntity:Entity)
+	{
+		var counter = mMessages.length-1;
+		while(counter>=0)
+		{
+			if (mMessages[counter].to!=null&&mMessages[counter].to.id == aEntity.id)
+			{
+				mMessages[counter].reset();
+				mMessages.splice(counter, 1);
+			}
+			--counter;
 		}
 	}
 	private  function insertMessageInOrder(aMessage:Message):Void
@@ -174,7 +187,7 @@ class SystemManager
 	
 		Message.clearWeak();
 	}
-	private inline function updateMessageDelay():Void
+	private inline  function updateMessageDelay():Void
 	{
 		for (message in mMessages)
 		{
@@ -201,6 +214,7 @@ class SystemManager
 	{
 		var entity = aMessage.to;
 		var dataCopy = aMessage.data;
+		aMessage.originalData = aMessage.data;
 		if (entity!=null&&entity.listening(aMessage.event))
 		{
 			var listeners:Array<ListenerAux> = entity.listeners(aMessage.event);
@@ -214,6 +228,7 @@ class SystemManager
 				aMessage.data = dataCopy;
 			}
 		}
+		aMessage.originalData = null;
 	}
 
 	public function deleteEntity(aEntity:Entity):Void
@@ -223,7 +238,7 @@ class SystemManager
 		{
 			mSystemsDictionary.get(i).remove(aEntity);
 		}
-		mEntities.remove(aEntity.id);
+		//mEntities.remove(aEntity.id);
 		aEntity.destroy();
 	}
 	public function removeBroadcast(aEvent:String, aEntity:Entity):Void
@@ -240,10 +255,10 @@ class SystemManager
 			++counter;
 		}
 	}
-	public function getEntity(aId:Int):Entity
-	{
-		return mEntities.get(aId);
-	}
+	//public function getEntity(aId:Int):Entity
+	//{
+		//return mEntities.get(aId);
+	//}
 	public function getSystem(aId:Int):ISystem
 	{
 		return mSystemsDictionary.get(aId);
@@ -252,10 +267,13 @@ class SystemManager
 	public function destroy():Void
 	{
 		mSystemsDictionary=null;
-		mListeners=null;
-		mEntities=null;
-		mSystems=null;
+		mListeners = null;
+		//mEntities = null;
+		mSystems.splice(0, mSystems.length);
+		mSystems = null;
 		mPropertiesPool = null;
+		mBroadcast = null;
+		Message.clearPool();
 		ES.i = null;
 	}
 	

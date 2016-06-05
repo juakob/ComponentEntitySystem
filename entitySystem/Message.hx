@@ -10,6 +10,7 @@ class Message
 	public var to:Entity;
 	public var from:Entity;
 	public var data:Dynamic;
+	public var originalData:Dynamic;
 	public var broadcast:Bool;
 	public var delay:Float;
 	public var totalDelay:Float;
@@ -54,5 +55,10 @@ class Message
 		message.delay = aDelay;
 		++index;
 		return message;
+	}
+	public static function clearPool():Void
+	{
+		i_weak.splice(0, i_weak.length);
+		index = 0;
 	}
 }

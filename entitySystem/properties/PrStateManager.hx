@@ -58,25 +58,33 @@ class PrStateManager implements Property
 			}
 		}
 	}
+	public function isStateSet(aSlot:String):Bool
+	{
+		return getSlot(aSlot).state!=null;
+	}
 	public function currentState(aSlot:String):String
 	{
 		return getSlot(aSlot).state.name;
 	}
-	public function change(aSlot:String, aState:String, aEntity:Entity):Void
+	public function change(aSlot:String, ?aState:String, aEntity:Entity):Void
 	{
 		var slot = getSlot(aSlot);
 		if (slot.state != null)
 		{
 			slot.state.unapplyState(aEntity);
 		}
-		
+		if (aState == null)
+		{
+			slot.state = null;
+			return;
+		}
 		slot.state = getState(aState);
 		if (!slot.disable)
 		{
 			slot.state.applyState(aEntity);
 		}
 	}
-	public inline function applyState(aState:String, aEntity:Entity):Void
+	public  function applyState(aState:String, aEntity:Entity):Void
 	{
 		getState(aState).applyState(aEntity);
 	}

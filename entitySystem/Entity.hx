@@ -24,7 +24,7 @@ class Entity
 		Systems = new Array();
 		Listening = new Map();
 		mBroadcast = new Array();
-		SystemManager.i.addEntityToDictionary(this);//TODO Is this necesary?
+	//	SystemManager.i.addEntityToDictionary(this);//TODO Is this necesary?
 	}
 	public function add(aProperty:Property, aCopy:Bool = false ):Void
 	{
@@ -200,14 +200,21 @@ class Entity
 		Alive = false;
 		if (InPool)
 		{
+			Listening = new Map();
+			for (listener in mBroadcast) 
+			{
+				ES.i.removeBroadcast(listener.message, this);
+			}
+			mBroadcast.splice(0, mBroadcast.length);
 			Systems.splice(0, Systems.length);
 			return;
 		}
-		var properties = mProperties.iterator();
-		for (property in properties) 
-		{
-			ES.i.storeProperty(property);
-		}
+		
+		//var properties = mProperties.iterator();
+		//for (property in properties) 
+		//{
+			//ES.i.storeProperty(property);
+		//}
 		mProperties = null;
 		Systems = null;
 		Listening = null;

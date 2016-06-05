@@ -16,6 +16,7 @@ class EntityState
 	private var mComplexProperties:Array<ComplexProperty>;
 	private var mListener:Array<ListenerAux>;
 	private var mMessages:Array<Message>;
+	public var onSet:Entity->Void;
 	public function new() 
 	{
 		mSystems = new Array();
@@ -104,6 +105,10 @@ class EntityState
 			message.from = aEntity;
 			ES.i.dispatch(message);
 		}
+		if (onSet != null)
+		{
+			onSet(aEntity);
+		}
 	}
 	
 	public function removeState(aEntity:Entity):Void
@@ -167,6 +172,7 @@ class EntityState
 		{
 			cl.mMessages.push(message.clone());
 		}
+		cl.onSet = onSet;
 		return cl;
 	}
 	public function set(entityState:EntityState):Void
