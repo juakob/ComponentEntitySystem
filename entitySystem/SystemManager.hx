@@ -1,5 +1,4 @@
 package entitySystem;
-import com.TimeManager;
 import entitySystem.Entity;
 
 /**
@@ -36,13 +35,13 @@ class SystemManager
 		mPropertiesPool = new Map();
 		mBroadcast = new Map();
 	}
-	public function update():Void
+	public function update(aDt:Float):Void
 	{
 		for (sys in mSystems) 
 		{
 			sys.update();
 		}
-		processMessages();
+		processMessages(aDt);
 	}
 	public function add(sys:ISystem):Void
 	{
@@ -172,26 +171,26 @@ class SystemManager
 		}
 		mMessages.unshift(aMessage);
 	}
-	private function processMessages():Void
+	private function processMessages(aDt:Float):Void
 	{
 		while(mMessages.length>0) 
 		{
-			if (mMessages[0].delay-TimeManager.delta <= 0)
+			if (mMessages[0].delay-aDt <= 0)
 			{
 				sendMessage(mMessages.shift());
 			}else {
-				updateMessageDelay();
+				updateMessageDelay(aDt);
 				break;
 			}
 		}
 	
 		Message.clearWeak();
 	}
-	private inline  function updateMessageDelay():Void
+	private inline  function updateMessageDelay(aDt:Float):Void
 	{
 		for (message in mMessages)
 		{
-			message.delay -= TimeManager.delta;
+			message.delay -= aDt;
 		}
 	}
 	private inline  function sendMessage(aMessage:Message):Void
