@@ -42,6 +42,7 @@ class SystemManager
 			sys.update();
 		}
 		processMessages(aDt);
+		proceedWithDelete();
 	}
 	public function add(sys:ISystem):Void
 	{
@@ -229,16 +230,24 @@ class SystemManager
 		}
 		aMessage.originalData = null;
 	}
-
+	var toDelete:Array<Entity> = new Array();
 	public function deleteEntity(aEntity:Entity):Void
 	{
-		var systems:Array<Int> = aEntity.Systems;
-		for (i in systems) 
+		toDelete.push(aEntity);
+	}
+	private function proceedWithDelete():Void
+	{
+		for (aEntity in toDelete)
 		{
-			mSystemsDictionary.get(i).remove(aEntity);
+			var systems:Array<Int> = aEntity.Systems;
+			for (i in systems) 
+			{
+				mSystemsDictionary.get(i).remove(aEntity);
+			}
+			//mEntities.remove(aEntity.id);
+			aEntity.destroy();
 		}
-		//mEntities.remove(aEntity.id);
-		aEntity.destroy();
+		toDelete.splice(0, toDelete.length);
 	}
 	public function removeBroadcast(aEvent:String, aEntity:Entity):Void
 	{
