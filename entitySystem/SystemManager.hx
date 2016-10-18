@@ -49,6 +49,11 @@ class SystemManager
 		mSystems.push(sys);
 		mSystemsDictionary.set(sys.id(), sys);
 	}
+	public function add2(sys:ISystem,id:Int):Void
+	{
+		mSystems.push(sys);
+		mSystemsDictionary.set(id, sys);
+	}
 	/**
 	 * Groups dont get updated. Use groups to query specific data of a group o entities
 	 * @param	sys
@@ -56,6 +61,10 @@ class SystemManager
 	public function addGroup(sys:ISystem):Void
 	{
 		mSystemsDictionary.set(sys.id(), sys);
+	}
+	public function addGroup2(sys:ISystem,id:Int):Void
+	{
+		mSystemsDictionary.set(id, sys);
 	}
 	//public function getProperty(aPorperty:Class<Property>):Property
 	//{
@@ -80,6 +89,10 @@ class SystemManager
 	public function addListener(aListener:IListener)
 	{
 		mListeners.set(aListener.id(), aListener);
+	}
+	public function addListener2(aListener:IListener, id:Int) 
+	{
+		mListeners.set(id, aListener);
 	}
 	public function addEntity(aEntity:Entity, aSystemId:Int,aFirst:Bool=false): Void
 	{
@@ -233,7 +246,7 @@ class SystemManager
 	var toDelete:Array<Entity> = new Array();
 	public function deleteEntity(aEntity:Entity):Void
 	{
-		toDelete.push(aEntity);
+		if(aEntity.Alive) toDelete.push(aEntity);
 	}
 	private function proceedWithDelete():Void
 	{
@@ -284,5 +297,7 @@ class SystemManager
 		Message.clearPool();
 		ES.i = null;
 	}
+	
+	
 	
 }

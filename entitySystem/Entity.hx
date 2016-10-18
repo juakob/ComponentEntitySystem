@@ -168,8 +168,7 @@ class Entity
 	}
 	public function kill():Void
 	{
-		ES.i.deleteEntity(this);
-		
+		if (Alive) ES.i.deleteEntity(this);
 	}
 	//public function clone():Void
 	//{

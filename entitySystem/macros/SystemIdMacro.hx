@@ -13,6 +13,7 @@ class SystemIdMacro
 		var pos = haxe.macro.Context.currentPos();
 		var mk = function( expr ) return {expr: expr, pos: pos};
         var fields = haxe.macro.Context.getBuildFields();
+		
        	var tint = TPath({ pack : [], name : "Int", params : [], sub : null });
         	fields.push( { name : "ID", doc : null, meta : [], access : [AStatic, APublic], kind : FVar(tint, {expr: EConst(CInt(Std.string(idCount))), pos: pos}) , pos: pos });
         	fields.push( 
@@ -32,7 +33,10 @@ class SystemIdMacro
 		
         return fields;	
 	}	
-	
+	macro public static function getId()
+	{
+	return macro $v { idCount++ };
+	}
 	
 	
 }
