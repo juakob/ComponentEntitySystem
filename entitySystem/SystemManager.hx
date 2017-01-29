@@ -1,5 +1,6 @@
 package entitySystem;
 import entitySystem.Entity;
+import net.FClient;
 
 /**
  * ...
@@ -12,7 +13,9 @@ class SystemManager
 {
 	private var mSystemsDictionary:Map<Int,ISystem>;
 	private var mListeners:Map<Int,IListener>;
-	//private var mEntities:Map<Int,Entity>;
+	#if expose
+		private var mEntities:Array<Entity>;
+	#end
 	private var mSystems:Array<ISystem>;
 	private var mPropertiesPool:Map<Int,PropertyPool>;
 	private var mBroadcast:Map<String,Array<Entity>>;
@@ -31,18 +34,28 @@ class SystemManager
 		mSystems = new Array();
 		mSystemsDictionary = new Map();
 		mListeners = new Map();
-		//mEntities = new Map();
+		#if expose
+			mEntities = new Array();
+		#end
 		mPropertiesPool = new Map();
 		mBroadcast = new Map();
 	}
 	public function update(aDt:Float):Void
 	{
-		for (sys in mSystems) 
+		#if expose
+		proccesNetMessages();
+		#end
+		if (!pause || step)
 		{
-			sys.update();
-		}
+			for (sys in mSystems) 
+			{
+				sys.update();
+			}
+			step = false;
+		
 		processMessages(aDt);
 		proceedWithDelete();
+		}
 	}
 	public function add(sys:ISystem):Void
 	{
@@ -55,7 +68,7 @@ class SystemManager
 		mSystemsDictionary.set(id, sys);
 	}
 	/**
-	 * Groups dont get updated. Use groups to query specific data of a group o entities
+	 * Groups dont get updated. Use groups to query specific data from there entities
 	 * @param	sys
 	 */
 	public function addGroup(sys:ISystem):Void
@@ -123,11 +136,14 @@ class SystemManager
 		}
 	}
 	
-	//Look if this is needed
-	//public function addEntityToDictionary(aEntity:Entity):Void
-	//{
-		//mEntities.set(aEntity.id, aEntity);
-	//}
+	
+	public inline function addEntityToList(aEntity:Entity):Void
+	{
+		#if expose
+		mEntities.push(aEntity);
+		#end
+	}
+	
 	
 	public function removeEntity(aEntity:Entity, aSystemId:Int) 
 	{
@@ -257,7 +273,9 @@ class SystemManager
 			{
 				mSystemsDictionary.get(i).remove(aEntity);
 			}
-			//mEntities.remove(aEntity.id);
+			#if expose
+				mEntities.remove(aEntity);
+			#end
 			aEntity.destroy();
 		}
 		toDelete.splice(0, toDelete.length);
@@ -276,10 +294,17 @@ class SystemManager
 			++counter;
 		}
 	}
-	//public function getEntity(aId:Int):Entity
-	//{
-		//return mEntities.get(aId);
-	//}
+	public function getEntity(aId:Int):Entity
+	{
+		for (entity in mEntities) 
+		{
+			if (entity.id == aId)
+			{
+				return entity;
+			}
+		}
+		throw "not found";
+	}
 	public function getSystem(aId:Int):ISystem
 	{
 		return mSystemsDictionary.get(aId);
@@ -289,15 +314,100 @@ class SystemManager
 	{
 		mSystemsDictionary=null;
 		mListeners = null;
-		//mEntities = null;
+		#if expose
+			mEntities = null;
+		#end
 		mSystems.splice(0, mSystems.length);
 		mSystems = null;
 		mPropertiesPool = null;
 		mBroadcast = null;
 		Message.clearPool();
 		ES.i = null;
+		#if expose
+		client.close();
+		#end
+	}
+	var pause:Bool;
+	var step:Bool;
+	public inline function isPaused():Bool
+	{
+		return pause && !step;
 	}
 	
+	#if expose
 	
-	
+	public function getEntities():String
+	{
+		var encode:String="";
+		for (entity in mEntities)
+		{
+			encode+= entity.name+"?" + entity.id+"*";
+		}
+		return encode;
+	}
+	public function getProperties(id:Int):String
+	{
+		for (entity in mEntities)
+		{
+			if (entity.id == id)
+			{
+				return entity.serialize();
+			}
+		}
+		trace("notFound");
+		return "notFound";
+	}
+	var client:FClient = new FClient();
+	public function proccesNetMessages():Void
+	{
+		client.update();
+		var ignore1:Bool=false;
+		var ignore2:Bool = false;
+		var ignore3:Bool=false;
+		while (client.messagesToRead() > 0)
+		{
+			var message:String = client.popMessage();
+			var parts:Array<String> = message.split("?*");
+			switch Std.parseInt(parts[0])
+			{
+				case 1://get entities
+					if (!ignore1){
+					ignore1 = true;
+					client.write("1?*" + getEntities());
+					}
+					
+				case 2: //get properties
+					if (!ignore2)
+					{
+						ignore2 = true;
+						client.write("2?*"+getProperties(Std.parseInt(parts[1])));
+					}
+					case 3: //get properties
+					if (!ignore3)
+					{
+						ignore3 = true;
+						if (parts[1] == "pause")
+						{
+							pause = true;
+						}else
+						if (parts[1] == "resume")
+						{
+							pause = false;
+							step = false;
+						}else
+						if (parts[1] == "step")
+						{
+							pause = true;
+							step = true;
+						}
+						dispatch(Message.weak(parts[1], null, null, null, true));
+						
+					}
+					
+				default://nothing
+			}
+		}
+	}
+	#end
+
 }

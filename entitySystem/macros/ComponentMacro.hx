@@ -18,6 +18,7 @@ class ComponentMacro
 		var cloneAlreadyDefinded:Bool = false;
 		var idAlreadyDefinded:Bool = false;
 		var setAlreadyDefinded:Bool = false;
+		var serializeAlreadyDefinded:Bool = false;
 		for (i in fields)
 		{
 			if (i.kind.getName()=="FFun") 
@@ -38,6 +39,12 @@ class ComponentMacro
 				{
 					//set is implemented
 					setAlreadyDefinded = true;
+					break;
+				}else
+				if (i.name == "serialize")
+				{
+					//serialize is implemented
+					serializeAlreadyDefinded = true;
 					break;
 				}
 			}
@@ -145,12 +152,55 @@ class ComponentMacro
 			
 			switch (c) {
 				case TAnonymous(setFunction):
-					return fields.concat(setFunction);
+					fields=fields.concat(setFunction);
 				default:
 					throw 'unreachable';
 			}
 		}
 		
+		
+		
+		//serialize function
+		#if expose
+		//if (!serializeAlreadyDefinded)
+		{
+		var code:String;
+		var exp:Array<Expr> = new Array();
+		var nodeType:String =  Context.getLocalClass().toString();
+		code = "var encode:String=\"\"";
+		
+		
+		exp.push(Context.parseInlineString(code, Context.currentPos()));
+		
+		
+		var array =Context.getBuildFields();
+		for (i in array) 
+		{
+			if (i.kind.getName()=="FFun")
+			{
+
+				continue;
+			}
+			code = "encode+= \"" + i.name+",s,\" +" +i.name+"+\"?\"";
+			exp.push(Context.parseInlineString(code, Context.currentPos()));
+		}
+		  code = "return encode";
+			exp.push(Context.parseInlineString(code, Context.currentPos()));
+		
+			var c = macro : {
+				public function serialize():String{
+					$b { exp }
+				}
+			}
+			
+			switch (c) {
+				case TAnonymous(setFunction):
+					fields=fields.concat(setFunction);
+				default:
+					throw 'unreachable';
+			}
+		}
+		#end
 		return fields;
 	}	
 	

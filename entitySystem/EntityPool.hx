@@ -1,4 +1,5 @@
 package entitySystem;
+import entitySystem.SystemManager.ES;
 
 /**
  * ...
@@ -19,6 +20,9 @@ class EntityPool
 			if (!entity.Alive)
 			{
 				entity.Alive = true;
+				#if expose
+				ES.i.addEntityToList(entity);
+				#end
 				return entity;
 			}
 		}

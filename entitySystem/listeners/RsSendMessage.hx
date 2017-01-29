@@ -17,13 +17,20 @@ class RsSendMessage extends Listener
 		var messages:Array<Message> = cast aMessage.data;
 		for (message in messages)
 		{
-			message.to = aMessage.to;
-			message.from = aMessage.from;
+			var messageCopy:Message;
+			if (message.delay != 0)
+			{
+			 messageCopy = message.clone();
+			}else {
+			 messageCopy = message;	
+			}
+			messageCopy.to = aMessage.to;
+			messageCopy.from = aMessage.from;
 			if (message.data == null)
 			{
-				message.data = aMessage.data;
+				messageCopy.data = aMessage.data;
 			}
-			ES.i.dispatch(message);
+			ES.i.dispatch(messageCopy);
 		}
 		return SUCCESS;
 	}

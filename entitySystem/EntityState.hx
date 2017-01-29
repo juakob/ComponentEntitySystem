@@ -44,9 +44,9 @@ class EntityState
 	{
 		mListener.push(new ListenerAux(aSystem, aMessage, false));
 	}
-	public function addProperty(aProperty:Property, aOverride:Bool = true):Void
+	public function addProperty(aProperty:Property, aDelete:Bool = false):Void
 	{
-		mPropertiesToAdd.push(new PropertyAux(aProperty, aOverride));
+		mPropertiesToAdd.push(new PropertyAux(aProperty, aDelete));
 	}
 	public function removeProperty(aId:Int):Void
 	{
@@ -115,7 +115,10 @@ class EntityState
 	{
 		for (property in mPropertiesToAdd) 
 		{
+			if (property.delete)
+			{
 			aEntity.remove(property.property.id());
+			}
 		}
 		//re add is not implemented for properties, don't think is needed
 	
@@ -270,18 +273,18 @@ private class PropertyAux
 {
 	public var id:Int;
 	public var property:Property;
-	public var override_:Bool;
+	public var delete:Bool;
 	
 	public function new(aProperty:Property, aOverride:Bool)
 	{
 		id = aProperty.id();
 		property = aProperty;
-		override_ = aOverride;
+		delete = aOverride;
 		
 	}
 	public function clone():PropertyAux
 	{
-		return new PropertyAux(property.clone(), override_);
+		return new PropertyAux(property.clone(), delete);
 	}
 	
 }

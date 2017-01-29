@@ -13,4 +13,7 @@ interface Property
 	function id():Int;
 	function clone():Property;
 	function set(aProperty:Property):Void;
+	#if expose
+	function serialize():String;
+	#end
 }

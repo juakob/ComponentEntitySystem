@@ -12,6 +12,7 @@ class Entity
 	public var id:Int;
 	public var Alive:Bool;
 	public var InPool:Bool;
+	public var name:String;
 	private var mProperties:Map<Int,Property>;
 	public var Systems(default, null):Array<Int>;
 	public var Listening(default, null):Map<String,Array<ListenerAux>>;
@@ -24,7 +25,9 @@ class Entity
 		Systems = new Array();
 		Listening = new Map();
 		mBroadcast = new Array();
-	//	SystemManager.i.addEntityToDictionary(this);//TODO Is this necesary?
+		#if expose
+		SystemManager.i.addEntityToList(this);
+		#end
 	}
 	public function add(aProperty:Property, aCopy:Bool = false ):Void
 	{
@@ -168,7 +171,10 @@ class Entity
 	}
 	public function kill():Void
 	{
-		if (Alive) ES.i.deleteEntity(this);
+		if (Alive) {
+			ES.i.deleteEntity(this);
+			Alive = false;
+		}
 	}
 	//public function clone():Void
 	//{
@@ -196,7 +202,7 @@ class Entity
 	 */
 	public function destroy() 
 	{
-		Alive = false;
+		
 		if (InPool)
 		{
 			Listening = new Map();
@@ -228,6 +234,17 @@ class Entity
 	{
 		return mProperties.exists(id);
 	}
+	#if expose
+	public function serialize():String
+	{
+		var encode:String = "";
+		for (prop in mProperties) 
+		{
+			encode+=prop.serialize()+";";
+		}
+		return encode;
+	}
+	#end
 }
 class ListenerAux
 {	

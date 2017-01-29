@@ -27,6 +27,10 @@ class Message
 	{
 		return new Message(event,to,from,data,broadcast,delay);
 	}
+	public function weakClone():Message
+	{
+		return Message.weak(event,to,from,data,broadcast,delay);
+	}
 	public function reset():Void
 	{
 		to = null;
@@ -52,7 +56,7 @@ class Message
 		message.from = aFrom;
 		message.data = aData;
 		message.broadcast = aBroadcast;
-		message.delay = aDelay;
+		message.totalDelay=message.delay = aDelay;
 		++index;
 		return message;
 	}
