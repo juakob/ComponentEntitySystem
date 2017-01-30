@@ -240,7 +240,7 @@ class Entity
 		var encode:String = "";
 		for (prop in mProperties) 
 		{
-			encode+=prop.serialize()+";";
+			encode+=prop.serialize();
 		}
 		return encode;
 	}

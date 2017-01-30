@@ -19,6 +19,7 @@ class ComponentMacro
 		var idAlreadyDefinded:Bool = false;
 		var setAlreadyDefinded:Bool = false;
 		var serializeAlreadyDefinded:Bool = false;
+		var setValueAlreadyDefinded:Bool = false;
 		for (i in fields)
 		{
 			if (i.kind.getName()=="FFun") 
@@ -45,6 +46,12 @@ class ComponentMacro
 				{
 					//serialize is implemented
 					serializeAlreadyDefinded = true;
+					break;
+				}else
+				if (i.name == "setValue")
+				{
+					//setValue is implemented
+					setValueAlreadyDefinded = true;
 					break;
 				}
 			}
@@ -160,14 +167,20 @@ class ComponentMacro
 		
 		
 		
-		//serialize function
+		
 		#if expose
-		//if (!serializeAlreadyDefinded)
+		//serialize function
+		if (!serializeAlreadyDefinded)
 		{
 		var code:String;
 		var exp:Array<Expr> = new Array();
 		var nodeType:String =  Context.getLocalClass().toString();
-		code = "var encode:String=\"\"";
+		nodeType = nodeType.split(".").pop();
+		if (nodeType.indexOf("Pr") == 0)
+		{
+			nodeType = nodeType.substring(2, nodeType.length);
+		}
+		code = "var encode:String=\""+nodeType+"?\"";
 		
 		
 		exp.push(Context.parseInlineString(code, Context.currentPos()));
@@ -181,14 +194,91 @@ class ComponentMacro
 
 				continue;
 			}
-			code = "encode+= \"" + i.name+",s,\" +" +i.name+"+\"?\"";
+			
+			var type:String = Std.string(i.kind.getParameters()[0]);
+			if (type.indexOf("String") !=-1)
+			{
+				code = "encode+= \"" + i.name+",s,\" +" +i.name+"+\"?\"";
+			}else
+			if (type.indexOf("Float") !=-1)
+			{
+				code = "encode+= \"" + i.name+",f,\" +" +i.name+"+\"?\"";
+			}else
+			if (type.indexOf("Int") !=-1)
+			{
+				code = "encode+= \"" + i.name+",i,\" +" +i.name+"+\"?\"";
+			}else
+			if (type.indexOf("Bool") !=-1)
+			{
+				code = "encode+= \"" + i.name+",b,\" +" +i.name+"+\"?\"";
+			}else {
+				code = "encode+= \"" + i.name+",d,\" +" +i.name+"+\"?\"";
+			}
 			exp.push(Context.parseInlineString(code, Context.currentPos()));
 		}
-		  code = "return encode";
+		  code = "return encode+\";;\"";
 			exp.push(Context.parseInlineString(code, Context.currentPos()));
 		
 			var c = macro : {
 				public function serialize():String{
+					$b { exp }
+				}
+			}
+			
+			switch (c) {
+				case TAnonymous(setFunction):
+					fields=fields.concat(setFunction);
+				default:
+					throw 'unreachable';
+			}
+		}
+		
+		
+		//set value function
+		if (!setValueAlreadyDefinded)
+		{
+		var code:String;
+		var exp:Array<Expr> = new Array();
+
+		var array = Context.getBuildFields();
+		var counter:Int = 0;
+		for (i in array) 
+		{
+			if (i.kind.getName()=="FFun")
+			{
+
+				continue;
+			}
+			
+			var type:String = Std.string(i.kind.getParameters()[0]);
+			if (type.indexOf("String") !=-1)
+			{
+				
+				code = "if ("+counter+"== id){" + i.name+"=  value; return;}";
+			}else
+			if (type.indexOf("Float") !=-1)
+			{
+				code = "if ("+counter+"== id){" + i.name+"= Std.parseFloat(value); return;}";
+			}else
+			if (type.indexOf("Int") !=-1)
+			{
+				code = "if ("+counter+"== id){" + i.name+"=  Std.parseInt(value); return;}";
+			}
+			else
+			if (type.indexOf("Bool") !=-1)
+			{
+				code = "if ("+counter+"== id){" + i.name+"=  value; return;}";
+			}else {
+				code = "if ("+counter+"== id)return";
+			}
+			
+			exp.push(Context.parseInlineString(code, Context.currentPos()));
+			++counter;
+		}
+	
+			var c = macro : {
+				public function setValue(id:Int, value:String):Void {
+					
 					$b { exp }
 				}
 			}

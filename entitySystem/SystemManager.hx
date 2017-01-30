@@ -42,6 +42,7 @@ class SystemManager
 	}
 	public function update(aDt:Float):Void
 	{
+		step = false;
 		#if expose
 		proccesNetMessages();
 		#end
@@ -51,7 +52,7 @@ class SystemManager
 			{
 				sys.update();
 			}
-			step = false;
+			
 		
 		processMessages(aDt);
 		proceedWithDelete();
@@ -345,16 +346,22 @@ class SystemManager
 		}
 		return encode;
 	}
+	var buffer:Entity;//avoid searching all the time
 	public function getProperties(id:Int):String
 	{
+		if (buffer != null && buffer.id == id&&buffer.Alive)
+		{
+			return buffer.serialize();
+		}
 		for (entity in mEntities)
 		{
 			if (entity.id == id)
 			{
+				buffer = entity;
 				return entity.serialize();
 			}
 		}
-		trace("notFound");
+		
 		return "notFound";
 	}
 	var client:FClient = new FClient();
@@ -380,7 +387,7 @@ class SystemManager
 					if (!ignore2)
 					{
 						ignore2 = true;
-						client.write("2?*"+getProperties(Std.parseInt(parts[1])));
+						client.write("2?*"+parts[1]+"?*"+getProperties(Std.parseInt(parts[1])));
 					}
 					case 3: //get properties
 					if (!ignore3)
