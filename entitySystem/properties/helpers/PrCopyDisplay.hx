@@ -11,6 +11,7 @@ import myComponents.properties.PrDisplay;
 
 class PrCopyDisplay implements Property
 {
+	public var ID:Int = PrDisplay.ID;
 	public var name:String;
 	public var frameRate:Float=1/60;
 	public var scale:Float = 1;

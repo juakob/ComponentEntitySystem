@@ -15,6 +15,7 @@ interface Property
 	function set(aProperty:Property):Void;
 	#if expose
 	function serialize():String;
-	//function setValue(id:Int,value:String):Void;
+	function setValue(id:Int, value:String):Void;
+	function getValue(id:Int):String;
 	#end
 }

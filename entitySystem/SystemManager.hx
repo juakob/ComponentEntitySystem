@@ -1,4 +1,5 @@
 package entitySystem;
+import com.TimeManager;
 import entitySystem.Entity;
 import net.FClient;
 
@@ -46,8 +47,11 @@ class SystemManager
 		#if expose
 		proccesNetMessages();
 		#end
-		if (!pause || step)
+		if (pause && !step)
 		{
+			aDt = 0;
+			TimeManager.setDelta(0);//temporal
+		}
 			for (sys in mSystems) 
 			{
 				sys.update();
@@ -56,7 +60,7 @@ class SystemManager
 		
 		processMessages(aDt);
 		proceedWithDelete();
-		}
+		
 	}
 	public function add(sys:ISystem):Void
 	{
@@ -295,17 +299,7 @@ class SystemManager
 			++counter;
 		}
 	}
-	public function getEntity(aId:Int):Entity
-	{
-		for (entity in mEntities) 
-		{
-			if (entity.id == aId)
-			{
-				return entity;
-			}
-		}
-		throw "not found";
-	}
+	
 	public function getSystem(aId:Int):ISystem
 	{
 		return mSystemsDictionary.get(aId);
@@ -347,22 +341,22 @@ class SystemManager
 		return encode;
 	}
 	var buffer:Entity;//avoid searching all the time
-	public function getProperties(id:Int):String
+	public function getEntity(id:Int):Entity
 	{
 		if (buffer != null && buffer.id == id&&buffer.Alive)
 		{
-			return buffer.serialize();
+			return buffer;
 		}
 		for (entity in mEntities)
 		{
 			if (entity.id == id)
 			{
 				buffer = entity;
-				return entity.serialize();
+				return entity;
 			}
 		}
 		
-		return "notFound";
+		return null;
 	}
 	var client:FClient = new FClient();
 	public function proccesNetMessages():Void
@@ -387,7 +381,14 @@ class SystemManager
 					if (!ignore2)
 					{
 						ignore2 = true;
-						client.write("2?*"+parts[1]+"?*"+getProperties(Std.parseInt(parts[1])));
+						var entity:Entity = getEntity(Std.parseInt(parts[1]));
+						if (entity != null)
+						{
+						client.write("2?*" + parts[1] + "?*" + entity.serialize());
+						}else
+						{
+							client.write("2?*" + parts[1] + "?* Dead" );
+						}
 					}
 					case 3: //get properties
 					if (!ignore3)
@@ -408,8 +409,9 @@ class SystemManager
 							step = true;
 						}
 						dispatch(Message.weak(parts[1], null, null, null, true));
-						
 					}
+				case 4://update value
+					getEntity(Std.parseInt(parts[1])).get(Std.parseInt(parts[2])).setValue(Std.parseInt(parts[3]), parts[4]);
 					
 				default://nothing
 			}
