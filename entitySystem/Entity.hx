@@ -245,6 +245,18 @@ class Entity
 		return encode;
 	}
 	#end
+	
+	#if expose
+	public function getMetadata():String
+	{
+		var encode:String = "";
+		for (prop in mProperties) 
+		{
+			encode+=prop.getMetadata()+";;";
+		}
+		return encode;
+	}
+	#end
 }
 class ListenerAux
 {	

@@ -17,5 +17,6 @@ interface Property
 	function serialize():String;
 	function setValue(id:Int, value:String):Void;
 	function getValue(id:Int):String;
+	function getMetadata():String;
 	#end
 }

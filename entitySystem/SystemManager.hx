@@ -412,6 +412,15 @@ class SystemManager
 					}
 				case 4://update value
 					getEntity(Std.parseInt(parts[1])).get(Std.parseInt(parts[2])).setValue(Std.parseInt(parts[3]), parts[4]);
+				case 5://update value
+					var entity:Entity = getEntity(Std.parseInt(parts[1]));
+						if (entity != null)
+						{
+							client.write("5?*" + parts[1] + "?*"+entity.getMetadata() );
+						}
+				case 6://show metadata
+					var entity:Entity = getEntity(Std.parseInt(parts[1]));
+					ES.i.dispatch(Message.weak("showMeta", null, entity, parts[2], true));
 					
 				default://nothing
 			}

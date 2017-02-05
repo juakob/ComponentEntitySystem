@@ -202,14 +202,13 @@ class ComponentMacro
 
 					continue;
 				}
-				
-				if (i.meta.length != 0)
+				if (i.meta.length != 0 && i.meta[0].name=="ignore")
 				{
-					//if (i.meta[0]. != -1)
-					//{
-						//trace("ignore");
-						//continue;
-					//}
+					continue;
+				}
+				if (i.meta.length != 0 &&i.meta[0].name=="expose")
+				{
+					
 					
 					for ( p in i.meta[0].params)
 					{
@@ -284,7 +283,11 @@ class ComponentMacro
 
 					continue;
 				}
-				if (i.meta.length != 0)
+				if (i.meta.length != 0 && i.meta[0].name=="ignore")
+				{
+					continue;
+				}
+				if (i.meta.length != 0 &&i.meta[0].name=="expose")
 				{
 					for ( p in i.meta[0].params)
 					{
@@ -359,7 +362,11 @@ class ComponentMacro
 
 					continue;
 				}
-				if (i.meta.length != 0)
+				if (i.meta.length != 0 && i.meta[0].name=="ignore")
+				{
+					continue;
+				}
+				if (i.meta.length != 0 &&i.meta[0].name=="expose")
 				{
 					for ( p in i.meta[0].params)
 					{
@@ -390,6 +397,71 @@ class ComponentMacro
 
 					$b { exp }
 					throw "id error";
+				}
+			}
+
+			switch (c)
+			{
+				case TAnonymous(setFunction):
+					fields=fields.concat(setFunction);
+				default:
+					throw 'unreachable';
+			}
+		}
+		
+		//get metaData function
+		if (!setValueAlreadyDefinded)
+		{
+			var exp:Array<Expr> = new Array();
+
+			var array = Context.getBuildFields();
+			var counter:Int = 0;
+			var encode:String = "";
+			for (i in array)
+			{
+				if (i.kind.getName()=="FFun")
+				{
+
+					continue;
+				}
+				if (i.meta.length != 0 && i.meta[0].name=="ignore")
+				{
+					continue;
+				}
+				if (i.meta.length != 0)
+				{
+					if (i.meta[0].name == "Rec") 
+					{
+						encode+= "Rec?";
+						for ( j in 0...i.meta.length) 
+						{
+							encode+= i.meta[j].name+",";
+							for ( p in i.meta[j].params)
+							{
+								for (c in p.expr.getParameters()) 
+								{
+									switch(c)
+									{
+										case CFloat(s):encode+=s+",";
+										case CInt(s):encode+=s+",";
+										case CString(s): encode+=s+",";
+										default: {trace("meta data error " + c); continue;}
+									}
+									//exp.push(Context.parseInlineString(code, Context.currentPos()));
+								}
+							}
+							encode+= "?";
+						}
+					}	
+				}
+				
+			}
+
+			var c = macro :
+			{
+				public function getMetadata():String
+				{
+					return $v{encode};
 				}
 			}
 
