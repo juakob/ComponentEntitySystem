@@ -1,6 +1,7 @@
 package entitySystem;
 import com.TimeManager;
 import entitySystem.Entity;
+import entitySystem.constants.Constant;
 import net.FClient;
 
 /**
@@ -421,11 +422,45 @@ class SystemManager
 				case 6://show metadata
 					var entity:Entity = getEntity(Std.parseInt(parts[1]));
 					ES.i.dispatch(Message.weak("showMeta", null, entity, parts[2], true));
-					
+				case 7://send constants
+					client.write("7?*" + getConstantsCSV());
+				case 8://update constant value
+					var constant:Dynamic = getConstant(parts[1]);
+					constant.setValue(parts[2], parts[3]);
+					client.write("7?*" + getConstantsCSV());
 				default://nothing
 			}
 		}
 	}
+	
+	private var constants:Array<Dynamic> = new Array();
+	public function getConstant(aId:String):Dynamic
+	{
+		for (constant in constants) 
+		{
+			if (constant.ID == aId)
+			{
+				return constant;
+			}
+		}
+		throw "Constant not found";
+	}
+	public function getConstantsCSV():String
+	{
+		var encode:String = "";
+		for (constant in constants) 
+		{
+			encode+=constant.toCSV()+";;";
+		}
+		return encode;
+	}
 	#end
-
+	public inline function addConstant(constant:Dynamic)
+	{
+		#if expose
+		constants.push(constant);
+		#end
+	}
+	
+	
 }

@@ -202,7 +202,7 @@ class ComponentMacro
 
 					continue;
 				}
-				if (i.meta.length != 0 && i.meta[0].name=="ignore")
+				if (i.meta.length != 0 && (i.meta[0].name=="ignore"||i.meta[0].name=="ignore"))
 				{
 					continue;
 				}
@@ -348,7 +348,7 @@ class ComponentMacro
 			}
 		}
 		//get value function
-		if (!setValueAlreadyDefinded)
+		if (true)
 		{
 			var code:String;
 			var exp:Array<Expr> = new Array();
@@ -410,7 +410,7 @@ class ComponentMacro
 		}
 		
 		//get metaData function
-		if (!setValueAlreadyDefinded)
+		if (true)
 		{
 			var exp:Array<Expr> = new Array();
 

@@ -1,4 +1,5 @@
 package net;
+
 #if flash
 import flash.errors.IOError;
 import flash.errors.SecurityError;
@@ -7,6 +8,9 @@ import flash.events.SecurityErrorEvent;
 import flash.net.Socket;
 import flash.system.Security;
 import flash.utils.ByteArray;
+#else
+import sys.net.Socket;
+import sys.net.Host;
 #end
 /**
  * ...
@@ -15,6 +19,8 @@ import flash.utils.ByteArray;
 class FClient
 {
 	#if flash
+	var socket:Socket;
+	#else
 	var socket:Socket;
 	#end
 	
@@ -40,6 +46,10 @@ class FClient
 		} catch(secError:SecurityError) {
 			// and here
 		}
+		#else
+		socket = new Socket();
+		socket.setBlocking(false);
+		socket.connect(new Host("192.168.0.101"), 5001);
 		#end
 		messages = new Array();
 	}
@@ -68,6 +78,22 @@ class FClient
 			}
 			stream = parts[0];
 		}
+		#else
+		try {
+			while (true)
+			{
+				stream +=socket.input.readLine();
+				var parts:Array<String> = stream.split(";>");
+				while (parts.length > 1)
+				{
+					messages.push(parts.shift());
+				}
+				stream = parts[0];
+			}
+		}catch (e:Dynamic)
+		{
+			
+		}
 		#end
 	}
 	public function write(aMessage:String):Void
@@ -78,6 +104,8 @@ class FClient
 			socket.writeUTFBytes(aMessage+"\n");
 			socket.flush();
 		}
+		#else
+		socket.output.writeString(aMessage+"\n");
 		#end
 	}
 	
@@ -97,6 +125,8 @@ class FClient
 		{
 			socket.close();
 		}
+		#else
+		socket.close();
 		#end
 	}
 }

@@ -5,7 +5,7 @@ package entitySystem;
  * @author Joaquin
  */
 
-@:autoBuild(entitySystem.macros.ComponentMacro.ComponentMacro.build())
+@:autoBuild(entitySystem.macros.ComponentMacro.build())
 interface Property 
 {
 	var nextProperty:Property;
