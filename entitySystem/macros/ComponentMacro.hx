@@ -1,5 +1,6 @@
 package entitySystem.macros ;
 import entitySystem.Property;
+import haxe.crypto.Md5;
 import haxe.macro.Context;
 import haxe.macro.Expr;
 import haxe.macro.ExprTools;
@@ -37,7 +38,7 @@ class ComponentMacro
 					idAlreadyDefinded = true;
 
 				}
-				else if (i.name == "set")
+				else if (i.name == "applyTo")
 				{
 					//set is implemented
 					setAlreadyDefinded = true;
@@ -65,6 +66,23 @@ class ComponentMacro
 				}
 			}
 		}
+		#if expose
+		var nodeType:String =  Context.getLocalClass().toString();
+		var typeName = nodeType.split(".").pop();
+		var tString = TPath({ pack : [], name : "String", params : [], sub : null });
+		fields.push(
+			{
+				name: "propertyName",
+				doc: null,
+				meta:[],
+				access: [APublic,AInline],
+				kind: FFun(
+				{
+					ret: tString, params: [], args: [], expr: mk( EReturn( mk( EConst(CString(typeName)))))
+				} ),
+				pos: pos
+			} );
+		#end
 		var tint = TPath({ pack : [], name : "Int", params : [], sub : null });
 		fields.push( { name : "versionId", doc : null, meta : [], access : [APublic], kind : FVar(tint, { expr: EConst(CInt(Std.string("0"))), pos: pos } ), pos: pos } );
 		fields.push( { name : "nextProperty", doc : null, meta : [], access : [APublic], kind : FVar(TPath({ pack : [], name : "Property", params : [], sub : null }), {expr: EConst(CIdent("null")), pos: pos}), pos: pos });
@@ -77,7 +95,7 @@ class ComponentMacro
 				name: "id",
 				doc: null,
 				meta:[],
-				access: [APublic],
+				access: [APublic,AInline],
 				kind: FFun(
 				{
 					ret: tint, params: [], args: [], expr: mk( EReturn( mk( EConst(CInt(Std.string(idCount))))))
@@ -144,7 +162,7 @@ class ComponentMacro
 			var code:String;
 			var exp:Array<Expr> = new Array();
 			var nodeType:String =  Context.getLocalClass().toString();
-			code = "var original:" + nodeType+" = cast aProperty";
+			code = "var destination:" + nodeType+" = cast aProperty";
 
 			exp.push(Context.parseInlineString(code, Context.currentPos()));
 
@@ -156,13 +174,13 @@ class ComponentMacro
 
 					continue;
 				}
-				code = "this." + i.name+" = original." +  i.name;
+				code = "destination." + i.name+" = this." +  i.name;
 				exp.push(Context.parseInlineString(code, Context.currentPos()));
 			}
 
 			var c = macro :
 			{
-				public function set(aProperty:Property):Void
+				public function applyTo(aProperty:Property):Void
 				{
 					$b { exp }
 				}
@@ -185,10 +203,7 @@ class ComponentMacro
 			var exp:Array<Expr> = new Array();
 			var nodeType:String =  Context.getLocalClass().toString();
 			var typeName = nodeType.split(".").pop();
-			if (nodeType.indexOf("Pr") == 0)
-			{
-				typeName = typeName.substring(2, typeName.length);
-			}
+			
 			code = "var encode:String=\"" + typeName+"?\"+ID+\"?\"";
 
 			exp.push(Context.parseInlineString(code, Context.currentPos()));
@@ -347,6 +362,105 @@ class ComponentMacro
 					throw 'unreachable';
 			}
 		}
+		//set value by name function
+		var md5String:String = "";
+		if (!setValueAlreadyDefinded)
+		{
+			var code:String;
+			var exp:Array<Expr> = new Array();
+			
+			var array = Context.getBuildFields();
+			var counter:Int = 0;
+			for (i in array)
+			{
+				if (i.kind.getName()=="FFun")
+				{
+
+					continue;
+				}
+				if (i.meta.length != 0 && i.meta[0].name=="ignore")
+				{
+					continue;
+				}
+				if (i.meta.length != 0 &&i.meta[0].name=="expose")
+				{
+					for ( p in i.meta[0].params)
+					{
+						var c = p.expr.getParameters()[0];
+						switch(c)
+						{
+							
+							case CString(s): {
+								code = "if (\""+s+"\"== name){" + i.name+"."+s+"=  Std.parseFloat(value); return;}";//TODO add other types other than float
+								md5String += i.name+s;	
+							}
+							default: {trace("meta data error " + c); continue;}
+						}
+						exp.push(Context.parseInlineString(code, Context.currentPos()));
+						++counter;
+					}
+				}else
+				{
+					var type:String = Std.string(i.kind.getParameters()[0]);
+					md5String += i.name;
+					if (type.indexOf("String") !=-1)
+					{
+
+						code = "if (\""+i.name+"\"== name){" + i.name+"=  value; return;}";
+					}
+					else if (type.indexOf("Float") !=-1)
+					{
+						code = "if (\""+i.name+"\"== name){" + i.name+"= Std.parseFloat(value); return;}";
+					}
+					else if (type.indexOf("Int") !=-1)
+					{
+						code = "if (\""+i.name+"\"== name){" + i.name+"=  Std.parseInt(value); return;}";
+					}
+					else if (type.indexOf("Bool") !=-1)
+					{
+						code = "if (\""+i.name+"\"== name){" + i.name+"=  value==\"true\"; return;}";
+					}
+					else
+					{
+						code = "if (\""+i.name+"\"== name)return";
+					}
+					exp.push(Context.parseInlineString(code, Context.currentPos()));
+					++counter;
+				}
+				
+			}
+
+			var c = macro :
+			{
+				public function setValueBy(name:String, value:String):Void
+				{
+
+					$b { exp }
+				}
+			}
+
+			switch (c)
+			{
+				case TAnonymous(setFunction):
+					fields=fields.concat(setFunction);
+				default:
+					throw 'unreachable';
+			}
+		}
+		//version function
+		fields.push(
+			{
+				name: "versionMd5",
+				doc: null,
+				meta:[],
+				access: [APublic,AInline],
+				kind: FFun(
+				{
+					ret: tString, params: [], args: [], expr: mk( EReturn( mk( EConst(CString(Md5.encode(md5String))))))
+				} ),
+				pos: pos
+			} );
+		
 		//get value function
 		if (true)
 		{

@@ -37,7 +37,7 @@ class Entity
 		}else {
 			if (mProperties.exists(aProperty.id()))
 			{
-				mProperties.get(aProperty.id()).set(aProperty);
+				aProperty.applyTo(mProperties.get(aProperty.id()));
 			}else {
 				mProperties.set(aProperty.id(), aProperty.clone());
 			}

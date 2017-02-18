@@ -11,6 +11,7 @@ import myComponents.properties.PrDisplay;
 
 class PrCopyDisplay implements Property
 {
+	@ignore
 	public var ID:Int = PrDisplay.ID;
 	public var name:String;
 	public var frameRate:Float=1/60;
@@ -22,13 +23,23 @@ class PrCopyDisplay implements Property
 		
 	}
 	
+	public function applyTo(aProperty:Property):Void 
+	{
+		var display:PrDisplay = cast aProperty;
+		var sprite = display.sprite;
+		sprite.frameRate = frameRate;
+		sprite.scaleX = sprite.scaleY = scale;
+		sprite.offsetX = offsetX;
+		sprite.offsetY = offsetY;
+	}
+	
 	public function clone():Property 
 	{
 		var cl:PrDisplay = new PrDisplay();
 		var sprite=GEngine.i.getNewAnimation(name);
 		cl.sprite = sprite;
 		sprite.frameRate = frameRate;
-		sprite.scaleX = cl.sprite.scaleY = scale;
+		sprite.scaleX = sprite.scaleY = scale;
 		sprite.offsetX = offsetX;
 		sprite.offsetY = offsetY;
 		return cl;

@@ -1,7 +1,11 @@
 package entitySystem;
+
 import com.TimeManager;
 import entitySystem.Entity;
 import entitySystem.constants.Constant;
+import entitySystem.storage.ISave;
+import entitySystem.storage.SaveData;
+
 import net.FClient;
 
 /**
@@ -22,17 +26,27 @@ class SystemManager
 	private var mPropertiesPool:Map<Int,PropertyPool>;
 	private var mBroadcast:Map<String,Array<Entity>>;
 	
+	var storage:ISave;
+	var saveData:SaveData;
 	public static var i(get,null):SystemManager;
 	public static function get_i():SystemManager
 	{
 		return i;
 	}
-	public static function init():Void
+	public static function init(saveImp:ISave):Void
 	{
-		i = new SystemManager();
+		i = new SystemManager(saveImp);
 	}
-	private function new() 
+	private function new(saveImp:ISave) 
 	{
+		
+		storage = saveImp;
+		if (storage.canLoad())
+		{
+			saveData = storage.load();
+		}else {
+			saveData = new SaveData();	
+		}
 		mSystems = new Array();
 		mSystemsDictionary = new Map();
 		mListeners = new Map();
@@ -331,13 +345,22 @@ class SystemManager
 	}
 	
 	#if expose
-	
+	private var factories:Array<EntityState> = new Array();
 	public function getEntities():String
 	{
 		var encode:String="";
 		for (entity in mEntities)
 		{
 			encode+= entity.name+"?" + entity.id+"*";
+		}
+		return encode;
+	}
+	public function getFactories():String
+	{
+		var encode:String="";
+		for (factory in factories)
+		{
+			encode+= factory.name+"?"+factory.name+"*";
 		}
 		return encode;
 	}
@@ -359,12 +382,24 @@ class SystemManager
 		
 		return null;
 	}
+	public function getFactory(aId:String):EntityState
+	{
+		for (factory in factories) 
+		{
+			if (factory.name == aId)
+			{
+				return factory;
+			}
+		}
+		throw "Factory "+aId+" not found";
+	}
 	var client:FClient = new FClient();
 	public function proccesNetMessages():Void
 	{
 		client.update();
 		var ignore1:Bool=false;
 		var ignore2:Bool = false;
+		var ignore10:Bool = false;
 		var ignore3:Bool=false;
 		while (client.messagesToRead() > 0)
 		{
@@ -391,7 +426,7 @@ class SystemManager
 							client.write("2?*" + parts[1] + "?* Dead" );
 						}
 					}
-					case 3: //get properties
+					case 3: //commands
 					if (!ignore3)
 					{
 						ignore3 = true;
@@ -427,12 +462,62 @@ class SystemManager
 				case 8://update constant value
 					var constant:Dynamic = getConstant(parts[1]);
 					constant.setValue(parts[2], parts[3]);
-					client.write("7?*" + getConstantsCSV());
+					client.write("7?*" + getConstantsCSV());// re send the update data
+				case 9://show factories names
+					client.write("9?*" + getFactories());
+				case 10: //get factory properties
+					if (!ignore10)
+					{
+						ignore10 = true;
+						var entityS:EntityState = getFactory(parts[1]);
+						if (entityS != null)
+						{
+							client.write("10?*" + parts[1] + "?*" + entityS.serialize());
+						}
+					}
+				case 11://update value
+					getFactory(parts[1]).get(Std.parseInt(parts[2])).setValue(Std.parseInt(parts[3]), parts[4]);
+				case 12: //save factory properties
+					{
+						var entityS:EntityState = getFactory(parts[1]);
+						if (entityS != null)
+						{
+							client.write("12?*" + parts[1] + "?*" + entityS.serialize());
+						}
+					}
+				case 13:
+					{
+						var propertiesRaw:Array<String> = parts[1].split(";;");
+						var factoryName:String = propertiesRaw.shift();
+						var factory = getFactory(factoryName);
+						propertiesRaw.pop();
+						applyToFactory(factory, propertiesRaw);
+						saveData.saveFactory(factory.name, parts[1]);
+						storage.save(saveData);
+					}
 				default://nothing
 			}
 		}
 	}
-	
+	function applyToFactory(factory:EntityState,parts:Array<String>)
+	{
+		var property:Property;
+		for (part in parts) 
+		{
+			var propertyRaw:Array<String> = part.split("?");
+			var propertyName:String = propertyRaw.shift();
+			var propertyID:String = propertyRaw.shift();
+			property = factory.getBy(propertyName);
+			propertyRaw.pop();
+			var counter:Int = 0;
+			for (variableRaw in propertyRaw)
+			{
+				var variableParts:Array<String> = variableRaw.split(",");
+				property.setValueBy(variableParts[0], variableParts[2]);
+				++counter;
+			}
+		}
+	}
 	private var constants:Array<Dynamic> = new Array();
 	public function getConstant(aId:String):Dynamic
 	{
@@ -454,12 +539,28 @@ class SystemManager
 		}
 		return encode;
 	}
+
 	#end
 	public inline function addConstant(constant:Dynamic)
 	{
 		#if expose
 		constants.push(constant);
 		#end
+	}
+	public  function addFactory(factory:EntityState)
+	{
+		#if expose
+		factories.push(factory);
+		client.write("9?*" + getFactories());
+		#end
+		var data = saveData.getData(factory.name);
+		if (data != null)
+		{
+			var parts:Array<String> =	data.split(";;");
+			var factoryName:String = parts.shift();
+			parts.pop();
+			applyToFactory(factory, parts);
+		}
 	}
 	
 	

@@ -9,7 +9,9 @@ import entitySystem.Property;
  */
 class PrStateManager implements Property
 {
+	@ignore
 	private var mStates:Array<StateGroup>;
+	@ignore
 	private var mSlots:Array<Slot>;
 	public function new() 
 	{
@@ -155,13 +157,14 @@ class PrStateManager implements Property
 		return cl;
 	}
 	
-	public function set(aProperty:Property):Void 
+	public function applyTo(aProperty:Property):Void 
 	{
 		//TODO deep set of all states
-		var copy:PrStateManager = cast aProperty;
-		for (slot in mSlots) 
+		var source:PrStateManager = this;
+		var destination:PrStateManager = cast aProperty;
+		for (slot in destination.mSlots) 
 		{
-			for (slotCopy in copy.mSlots) 
+			for (slotCopy in source.mSlots) 
 			{
 				if (slot.name == slotCopy.name)
 				{

@@ -228,6 +228,40 @@ class EntityState
 			//cl.mListener.push(listener.clone());
 		//}
 	}
+	
+	#if expose
+	public function serialize():String
+	{
+		var encode:String = "";
+		for (prop in mPropertiesToAdd) 
+		{
+			encode+=prop.property.serialize();
+		}
+		return encode;
+	}
+	public function getBy(aName:String):Property
+	{
+		for (prop in mPropertiesToAdd) 
+		{
+			if (prop.name == aName)
+			{
+				return prop.property;
+			}
+		}
+		throw "property with name " + aName + " not found";
+	}
+	public function get(aId:Int):Property
+	{
+		for (prop in mPropertiesToAdd) 
+		{
+			if (prop.id == aId)
+			{
+				return prop.property;
+			}
+		}
+		throw "property with id " + aId + " not found";
+	}
+	#end
 }
 
 private class SystemAux
@@ -262,6 +296,7 @@ private class ListenerAux
 		add = aAdd;
 		overrideData = aOverrideData;
 		broadcast = aBroadcast;
+		
 	}
 	public function clone():ListenerAux
 	{
@@ -274,12 +309,17 @@ private class PropertyAux
 	public var id:Int;
 	public var property:Property;
 	public var delete:Bool;
-	
+	#if expose
+	public var name:String;
+	#end
 	public function new(aProperty:Property, aOverride:Bool)
 	{
 		id = aProperty.id();
 		property = aProperty;
 		delete = aOverride;
+		#if expose
+		name = aProperty.propertyName();
+		#end
 		
 	}
 	public function clone():PropertyAux
