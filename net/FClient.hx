@@ -1,6 +1,7 @@
 package net;
 
-#if flash
+#if js
+#elseif flash
 import flash.errors.IOError;
 import flash.errors.SecurityError;
 import flash.events.IOErrorEvent;
@@ -18,7 +19,8 @@ import sys.net.Host;
  */
 class FClient
 {
-	#if flash
+	#if js
+	#elseif flash
 	var socket:Socket;
 	#else
 	var socket:Socket;
@@ -28,7 +30,8 @@ class FClient
 
 	public function new() 
 	{
-		#if flash
+		#if js
+		#elseif flash
 		try {
 		  Security.allowDomain('127.0.0.1');
 		  Security.loadPolicyFile("xmlsocket://127.0.0.1:5001");
@@ -67,7 +70,8 @@ class FClient
 	var stream:String="";
 	public function update():Void
 	{
-		#if flash
+		#if js
+		#elseif flash
 		if (socket.connected && socket.bytesAvailable != 0)
 		{	
 			stream += socket.readUTFBytes(socket.bytesAvailable);
@@ -98,7 +102,8 @@ class FClient
 	}
 	public function write(aMessage:String):Void
 	{
-		#if flash
+		#if js
+		#elseif flash
 		if (socket.connected)
 		{
 			socket.writeUTFBytes(aMessage+"\n");
@@ -120,7 +125,8 @@ class FClient
 	
 	public function close() 
 	{
-		#if flash
+		#if js
+		#elseif flash
 		if (socket.connected)
 		{
 			socket.close();
