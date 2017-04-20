@@ -1,10 +1,12 @@
 package entitySystem;
 
+
 import com.TimeManager;
 import entitySystem.Entity;
 import entitySystem.constants.Constant;
 import entitySystem.storage.ISave;
 import entitySystem.storage.SaveData;
+
 
 import net.FClient;
 
@@ -33,9 +35,12 @@ class SystemManager
 	{
 		return i;
 	}
-	public static function init(saveImp:ISave):Void
+	public static function init():Void
 	{
-		i = new SystemManager(saveImp);
+		#if !macro
+		i = new SystemManager(new entitySystem.storage.SaveKhaImpl());
+		#end
+		
 	}
 	private function new(saveImp:ISave) 
 	{
@@ -552,7 +557,7 @@ class SystemManager
 		#if expose
 		factories.push(factory);
 		client.write("9?*" + getFactories());
-		#end
+		
 		var data = saveData.getData(factory.name);
 		if (data != null)
 		{
@@ -561,6 +566,12 @@ class SystemManager
 			parts.pop();
 			applyToFactory(factory, parts);
 		}
+		#end
+	}
+	
+	public function isInitialized():Bool
+	{
+		return i != null;
 	}
 	
 	
