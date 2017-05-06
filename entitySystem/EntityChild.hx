@@ -12,6 +12,7 @@ class EntityChild extends Entity
 	{
 		super();
 		mParent = aParent;
+		mParent.addChild(this);
 	}
 	override public function get(aId:Int):Property 
 	{

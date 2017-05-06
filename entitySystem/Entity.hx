@@ -17,6 +17,8 @@ class Entity
 	public var Systems(default, null):Array<Int>;
 	public var Listening(default, null):Map<String,Array<ListenerAux>>;
 	private var mBroadcast:Array<BroadcastAux>;
+	private var mChild:Entity;
+	private var mNext:Entity = null;
 	public function new() 
 	{
 		Alive = true;
@@ -202,6 +204,15 @@ class Entity
 	 */
 	public function destroy() 
 	{
+		var nextChild:Entity = mChild;
+		while (nextChild!=null) 
+		{
+			var last = nextChild;
+			nextChild = nextChild.mNext;
+			ES.i.deleteEntity(last);
+		}
+		mChild = null;
+		mNext = null;
 		
 		if (InPool)
 		{
@@ -228,6 +239,26 @@ class Entity
 			ES.i.removeBroadcast(listener.message, this);
 		}
 		mBroadcast = null;
+	}
+	
+	public function addChild(aEntity:Entity)
+	{
+		if (mChild == null)
+		{
+			mChild = aEntity;
+			return;
+		}
+		var next = mChild;
+		while (true)
+		{
+			if (next.mNext != null)
+			{
+				next = next.mNext;
+				continue;
+			}
+			next.mChild = aEntity;
+			return;
+		}
 	}
 	
 	public function hasProperty(id:Int) :Bool

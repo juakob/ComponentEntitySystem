@@ -11,11 +11,11 @@ class ConstantsMacro
 
 	macro public static function build(): Array<Field>
 	{
-		
+		var fields = haxe.macro.Context.getBuildFields();
 		#if expose
 		var pos = haxe.macro.Context.currentPos();
 		var mk = function( expr ) return {expr: expr, pos: pos};
-		var fields = haxe.macro.Context.getBuildFields();
+		
 		
 		var nodeType:String =  Context.getLocalClass().toString();
 		var typeName = nodeType.split(".").pop();
