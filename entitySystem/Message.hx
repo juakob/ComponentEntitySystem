@@ -60,6 +60,10 @@ class Message
 		++index;
 		return message;
 	}
+	public static function weakBroadcast(aEvent:String,aData:Dynamic = null,aDelay:Float=0):Message
+	{
+		return Message.weak(aEvent,null,null,aData,true,aDelay);
+	}
 	public static function clearPool():Void
 	{
 		i_weak.splice(0, i_weak.length);

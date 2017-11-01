@@ -70,7 +70,7 @@ class SystemManager
 		if (pause && !step)
 		{
 			aDt = 0;
-			TimeManager.setDelta(0);//temporal
+			TimeManager.setDelta(0,0);//temporal
 		}
 			for (sys in mSystems) 
 			{

@@ -17,6 +17,9 @@ class EntityState
 	private var mListener:Array<ListenerAux>;
 	private var mMessages:Array<Message>;
 	public var onSet:Entity->Void;
+	
+	var mChildID:Int;
+	var mChildren:Array<EntityState>;
 	public function new() 
 	{
 		mSystems = new Array();
@@ -25,6 +28,7 @@ class EntityState
 		mComplexProperties = new Array();
 		mListener = new Array();
 		mMessages = new Array();
+		mChildren = new Array();
 	}
 	public function addSystem(aSystem:Int, aSafeAdd:Bool = false):Void
 	{
@@ -109,6 +113,11 @@ class EntityState
 		{
 			onSet(aEntity);
 		}
+		
+		for (childState in mChildren) 
+		{
+			childState.applyState(aEntity.getChild(childState.mChildID));
+		}
 	}
 	
 	public function removeState(aEntity:Entity):Void
@@ -142,7 +151,55 @@ class EntityState
 				systemManager.unsubscribeEntity(aEntity,listener.message, listener.id);
 			}
 		}
+		
+		for (childState in mChildren) 
+		{
+			childState.removeState(aEntity.getChild(childState.mChildID));
+		}
 	}
+	/////////////////////// Child Functions ////////////////////////
+	private  function getChildState(aChildID:Int):EntityState
+	{
+		for (state in mChildren)
+		{
+			if (state.mChildID == aChildID) return state;
+		}
+		var newState = new EntityState();
+		newState.mChildID = aChildID;
+		mChildren.push(newState);
+		return newState;
+	}
+	public function addSystemTo(aChildID:Int,aSystem:Int, aSafeAdd:Bool = false):Void
+	{
+		getChildState(aChildID).addSystem(aSystem, aSafeAdd);
+	}
+	
+	public function removeSystemTo(aChildID:Int,aSystem:Int):Void
+	{
+		getChildState(aChildID).removeSystem(aSystem);
+	}
+	public function addListeneingTo(aChildID:Int,aMessage:String,aSystem:Int,aOverrideData:Dynamic=null,aBroadcast:Bool=false):Void
+	{
+		getChildState(aChildID).addListeneing(aMessage, aSystem, aOverrideData, aBroadcast);
+	}
+	
+	public function removeListeneingTo(aChildID:Int,aMessage:String,aSystem:Int):Void
+	{
+		getChildState(aChildID).removeListeneing(aMessage, aSystem);
+	}
+	public function addPropertyTo(aChildID:Int,aProperty:Property, aDelete:Bool = false):Void
+	{
+		getChildState(aChildID).addProperty(aProperty, aDelete);
+	}
+	public function removePropertyTo(aChildID:Int,aId:Int):Void
+	{
+		getChildState(aChildID).removeProperty(aId);
+	}
+	public function addComplexPropertyTo(aChildID:Int,aProperty:ComplexProperty, aOverride:Bool = true):Void
+	{
+		getChildState(aChildID).addComplexProperty(aProperty, aOverride);
+	}
+	//////////////////////////////////////////
 	public function clone():EntityState
 	{
 		var cl:EntityState = new EntityState();

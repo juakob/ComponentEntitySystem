@@ -10,6 +10,7 @@ class Entity
 {
 	private static var s_id:Int = 0;
 	public var id:Int;
+	public var logicalChildID:Int;
 	public var Alive:Bool;
 	public var InPool:Bool;
 	public var name:String;
@@ -259,6 +260,19 @@ class Entity
 			next.mChild = aEntity;
 			return;
 		}
+	}
+	public function getChild(aLogicChildId:Int):Entity
+	{
+		var next = mChild;
+		while (next!=null)
+		{
+			if (next.logicalChildID == aLogicChildId)
+			{
+				return next;
+			}
+			next = next.mNext;
+		}
+		throw "no child with logic id " + aLogicChildId;
 	}
 	
 	public function hasProperty(id:Int) :Bool
