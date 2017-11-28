@@ -6,6 +6,9 @@ import entitySystem.Entity;
 import entitySystem.constants.Constant;
 import entitySystem.storage.ISave;
 import entitySystem.storage.SaveData;
+import inspector.net.IServer;
+import inspector.net.Local;
+import inspector.net.LocalClient;
 
 
 import net.FClient;
@@ -44,7 +47,7 @@ class SystemManager
 	}
 	private function new(saveImp:ISave) 
 	{
-		
+		client = LocalClient.i; // new FClient();
 		storage = saveImp;
 		if (storage.canLoad())
 		{
@@ -398,7 +401,7 @@ class SystemManager
 		}
 		throw "Factory "+aId+" not found";
 	}
-	var client:FClient = new FClient();
+	var client:IServer;
 	public function proccesNetMessages():Void
 	{
 		client.update();
@@ -415,7 +418,7 @@ class SystemManager
 				case 1://get entities
 					if (!ignore1){
 					ignore1 = true;
-					client.write("1?*" + getEntities());
+					client.send("1?*" + getEntities());
 					}
 					
 				case 2: //get properties
@@ -425,18 +428,20 @@ class SystemManager
 						var entity:Entity = getEntity(Std.parseInt(parts[1]));
 						if (entity != null)
 						{
-						client.write("2?*" + parts[1] + "?*" + entity.serialize());
+						client.send("2?*" + parts[1] + "?*" + entity.serialize());
 						}else
 						{
-							client.write("2?*" + parts[1] + "?* Dead" );
+							client.send("2?*" + parts[1] + "?* Dead" );
 						}
 					}
 					case 3: //commands
 					if (!ignore3)
 					{
+						
 						ignore3 = true;
 						if (parts[1] == "pause")
 						{
+							
 							pause = true;
 						}else
 						if (parts[1] == "resume")
@@ -457,19 +462,19 @@ class SystemManager
 					var entity:Entity = getEntity(Std.parseInt(parts[1]));
 						if (entity != null)
 						{
-							client.write("5?*" + parts[1] + "?*"+entity.getMetadata() );
+							client.send("5?*" + parts[1] + "?*"+entity.getMetadata() );
 						}
 				case 6://show metadata
 					var entity:Entity = getEntity(Std.parseInt(parts[1]));
 					ES.i.dispatch(Message.weak("showMeta", null, entity, parts[2], true));
 				case 7://send constants
-					client.write("7?*" + getConstantsCSV());
+					client.send("7?*" + getConstantsCSV());
 				case 8://update constant value
 					var constant:Dynamic = getConstant(parts[1]);
 					constant.setValue(parts[2], parts[3]);
-					client.write("7?*" + getConstantsCSV());// re send the update data
+					client.send("7?*" + getConstantsCSV());// re send the update data
 				case 9://show factories names
-					client.write("9?*" + getFactories());
+					client.send("9?*" + getFactories());
 				case 10: //get factory properties
 					if (!ignore10)
 					{
@@ -477,7 +482,7 @@ class SystemManager
 						var entityS:EntityState = getFactory(parts[1]);
 						if (entityS != null)
 						{
-							client.write("10?*" + parts[1] + "?*" + entityS.serialize());
+							client.send("10?*" + parts[1] + "?*" + entityS.serialize());
 						}
 					}
 				case 11://update value
@@ -487,7 +492,7 @@ class SystemManager
 						var entityS:EntityState = getFactory(parts[1]);
 						if (entityS != null)
 						{
-							client.write("12?*" + parts[1] + "?*" + entityS.serialize());
+							client.send("12?*" + parts[1] + "?*" + entityS.serialize());
 						}
 					}
 				case 13:
@@ -556,7 +561,7 @@ class SystemManager
 	{
 		#if expose
 		factories.push(factory);
-		client.write("9?*" + getFactories());
+		client.send("9?*" + getFactories());
 		
 		var data = saveData.getData(factory.name);
 		if (data != null)

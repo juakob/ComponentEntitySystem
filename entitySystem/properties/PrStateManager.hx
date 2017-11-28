@@ -71,6 +71,8 @@ class PrStateManager implements Property
 	public function change(aSlot:String, ?aState:String, aEntity:Entity):Void
 	{
 		var slot = getSlot(aSlot);
+		if (!slot.disable)
+		{
 		if (slot.state != null)
 		{
 			slot.state.unapplyState(aEntity);
@@ -81,8 +83,7 @@ class PrStateManager implements Property
 			return;
 		}
 		slot.state = getState(aState);
-		if (!slot.disable)
-		{
+		
 			slot.state.applyState(aEntity);
 		}
 	}

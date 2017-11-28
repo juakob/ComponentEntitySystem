@@ -17,6 +17,7 @@ class EntityState
 	private var mListener:Array<ListenerAux>;
 	private var mMessages:Array<Message>;
 	public var onSet:Entity->Void;
+	public var onRemove:Entity->Void;
 	
 	var mChildID:Int;
 	var mChildren:Array<EntityState>;
@@ -103,6 +104,12 @@ class EntityState
 				systemManager.unsubscribeEntity(aEntity,listener.message, listener.id);
 			}
 		}
+		
+		for (childState in mChildren) 
+		{
+			childState.applyState(aEntity.getChild(childState.mChildID));
+		}
+		
 		for (message in mMessages)
 		{
 			message.to = aEntity;
@@ -112,11 +119,6 @@ class EntityState
 		if (onSet != null)
 		{
 			onSet(aEntity);
-		}
-		
-		for (childState in mChildren) 
-		{
-			childState.applyState(aEntity.getChild(childState.mChildID));
 		}
 	}
 	
@@ -155,6 +157,10 @@ class EntityState
 		for (childState in mChildren) 
 		{
 			childState.removeState(aEntity.getChild(childState.mChildID));
+		}
+		if (onSet != null)
+		{
+			onRemove(aEntity);
 		}
 	}
 	/////////////////////// Child Functions ////////////////////////

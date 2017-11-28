@@ -1,6 +1,9 @@
 package net;
+import inspector.net.IServer;
+
 
 #if js
+import js.html.WebSocket;
 #elseif flash
 import flash.errors.IOError;
 import flash.errors.SecurityError;
@@ -17,9 +20,11 @@ import sys.net.Host;
  * ...
  * @author Joaquin
  */
-class FClient
+class FClient implements IServer
 {
 	#if js
+	var socket:WebSocket;
+	var open:Bool;
 	#elseif flash
 	var socket:Socket;
 	#else
@@ -31,9 +36,14 @@ class FClient
 	public function new() 
 	{
 		#if js
+		socket = new WebSocket('ws://localhost:5001');
+		socket.onopen = function(e) { open = true; };
+		socket.onerror = function(e) { trace(e.code) ; };
+		socket.onmessage = onMessage;
+		
 		#elseif flash
 		try {
-		  Security.allowDomain('127.0.0.1');
+		  Security.allowDomain("127.0.0.1");
 		  Security.loadPolicyFile("xmlsocket://127.0.0.1:5001");
 		} catch (e:IOError) {
 			
@@ -74,25 +84,13 @@ class FClient
 		#elseif flash
 		if (socket.connected && socket.bytesAvailable != 0)
 		{	
-			stream += socket.readUTFBytes(socket.bytesAvailable);
-			var parts:Array<String> = stream.split(";>");
-			while (parts.length > 1)
-			{
-				messages.push(parts.shift());
-			}
-			stream = parts[0];
+			addToStream(socket.readUTFBytes(socket.bytesAvailable));
 		}
 		#else
 		try {
 			while (true)
 			{
-				stream +=socket.input.readLine();
-				var parts:Array<String> = stream.split(";>");
-				while (parts.length > 1)
-				{
-					messages.push(parts.shift());
-				}
-				stream = parts[0];
+				addToStream(socket.input.readLine());
 			}
 		}catch (e:Dynamic)
 		{
@@ -100,9 +98,27 @@ class FClient
 		}
 		#end
 	}
-	public function write(aMessage:String):Void
+	function addToStream(aString:String)
+	{
+		stream +=aString;
+		var parts:Array<String> = stream.split(";>");
+		while (parts.length > 1)
+		{
+			messages.push(parts.shift());
+		}
+		stream = parts[0];
+	}
+	#if js
+	function onMessage(aEvent) {
+		addToStream(aEvent.data);
+	}
+	#end
+	public function send(aMessage:String):Void
 	{
 		#if js
+		if(open){
+			socket.send(aMessage);
+		}
 		#elseif flash
 		if (socket.connected)
 		{
@@ -126,6 +142,7 @@ class FClient
 	public function close() 
 	{
 		#if js
+			socket.close();
 		#elseif flash
 		if (socket.connected)
 		{
@@ -135,4 +152,13 @@ class FClient
 		socket.close();
 		#end
 	}
+	
+	/* INTERFACE inspector.net.IServer */
+	
+	public function onConnection(callBack:Void->Void):Void 
+	{
+		callBack();
+	}
+	
+
 }
