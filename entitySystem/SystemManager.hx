@@ -3,6 +3,7 @@ package entitySystem;
 
 import com.TimeManager;
 import entitySystem.Entity;
+import entitySystem.Message.MessageID;
 import entitySystem.constants.Constant;
 import entitySystem.storage.ISave;
 import entitySystem.storage.SaveData;
@@ -29,7 +30,7 @@ class SystemManager
 	#end
 	private var mSystems:Array<ISystem>;
 	private var mPropertiesPool:Map<Int,PropertyPool>;
-	private var mBroadcast:Map<String,Array<Entity>>;
+	private var mBroadcast:Map<MessageID,Array<Entity>>;
 	
 	var storage:ISave;
 	var saveData:SaveData;
@@ -142,7 +143,7 @@ class SystemManager
 			mSystemsDictionary.get(aSystemId).add(aEntity, aFirst);
 		}
 	}
-	public function subscribeEntity(aEntity:Entity, aMessage:String , aListenerId:Int, aOverrideData:Dynamic = null, aBroadcast:Bool = false):Void
+	public function subscribeEntity(aEntity:Entity, aMessage:MessageID , aListenerId:Int, aOverrideData:Dynamic = null, aBroadcast:Bool = false):Void
 	{
 		
 		if ( aEntity.addListener(aMessage, aListenerId, aOverrideData,aBroadcast) && aBroadcast )
@@ -178,7 +179,7 @@ class SystemManager
 		aEntity.removeSystem(aSystemId);
 		mSystemsDictionary.get(aSystemId).remove(aEntity);
 	}
-	public function unsubscribeEntity(aEntity:Entity,aMessage:String, aListener:Int)
+	public function unsubscribeEntity(aEntity:Entity,aMessage:MessageID, aListener:Int)
 	{
 		if (aEntity.removeListener(aMessage, aListener))
 		{
@@ -308,7 +309,7 @@ class SystemManager
 		}
 		toDelete.splice(0, toDelete.length);
 	}
-	public function removeBroadcast(aEvent:String, aEntity:Entity):Void
+	public function removeBroadcast(aEvent:MessageID, aEntity:Entity):Void
 	{
 		var entities = mBroadcast.get(aEvent);
 		var counter:Int = 0;
@@ -454,7 +455,7 @@ class SystemManager
 							pause = true;
 							step = true;
 						}
-						dispatch(Message.weak(parts[1], null, null, null, true));
+						dispatch(Message.weak(Message.dynamicID(parts[1]), null, null, null, true));
 					}
 				case 4://update value
 					getEntity(Std.parseInt(parts[1])).get(Std.parseInt(parts[2])).setValue(Std.parseInt(parts[3]), parts[4]);
@@ -466,7 +467,7 @@ class SystemManager
 						}
 				case 6://show metadata
 					var entity:Entity = getEntity(Std.parseInt(parts[1]));
-					ES.i.dispatch(Message.weak("showMeta", null, entity, parts[2], true));
+					ES.i.dispatch(Message.weak(Message.id("showMeta"), null, entity, parts[2], true));
 				case 7://send constants
 					client.send("7?*" + getConstantsCSV());
 				case 8://update constant value

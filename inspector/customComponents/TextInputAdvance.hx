@@ -14,7 +14,7 @@ class TextInputAdvance
 	static var veloctiy:Float = 0;
 	public static function TextScroller(ui:Zui, handle:Handle,label:String) :Float
 	{
-		ui.row([4 / 6, 1 / 6, 1 / 6]);
+		ui.row([4 / 6, 0.5 / 6, 0.5 / 6]);
 		var value = ui.textInput(handle, label, Align.Left);
 		if (handle.changed)
 		{
@@ -27,7 +27,7 @@ class TextInputAdvance
 			}
 		}
 		ui.button("<");
-		if (ui.inputDown&&ui.isHovered)
+		if (ui.getPushed())
 		{
 			if (ui.inputStarted)
 			{
@@ -38,7 +38,7 @@ class TextInputAdvance
 			handle.changed = true;
 		}
 		ui.button(">");
-		if (ui.inputDown && ui.isHovered)
+		if (ui.getPushed())
 		{
 			if (ui.inputStarted)
 			{
@@ -48,7 +48,7 @@ class TextInputAdvance
 			handle.text=(Std.parseFloat(handle.text)+ veloctiy)+"";
 			handle.changed = true;
 		}
-		
+		ui.separator();
 		
 		return handle.value;
 	}

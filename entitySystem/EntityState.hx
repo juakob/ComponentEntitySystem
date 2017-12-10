@@ -1,4 +1,5 @@
 package entitySystem;
+import entitySystem.Message.MessageID;
 import entitySystem.properties.ComplexProperty;
 import entitySystem.SystemManager.ES;
 
@@ -40,12 +41,12 @@ class EntityState
 	{
 		mSystems.push(new SystemAux(aSystem, false, false));
 	}
-	public function addListeneing( aMessage:String,aSystem:Int,aOverrideData:Dynamic=null,aBroadcast:Bool=false):Void
+	public function addListeneing( aMessage:MessageID,aSystem:Int,aOverrideData:Dynamic=null,aBroadcast:Bool=false):Void
 	{
 		mListener.push(new ListenerAux(aSystem, aMessage, true,aOverrideData,aBroadcast));
 	}
 	
-	public function removeListeneing(aMessage:String,aSystem:Int):Void
+	public function removeListeneing(aMessage:MessageID,aSystem:Int):Void
 	{
 		mListener.push(new ListenerAux(aSystem, aMessage, false));
 	}
@@ -184,12 +185,12 @@ class EntityState
 	{
 		getChildState(aChildID).removeSystem(aSystem);
 	}
-	public function addListeneingTo(aChildID:Int,aMessage:String,aSystem:Int,aOverrideData:Dynamic=null,aBroadcast:Bool=false):Void
+	public function addListeneingTo(aChildID:Int,aMessage:MessageID,aSystem:Int,aOverrideData:Dynamic=null,aBroadcast:Bool=false):Void
 	{
 		getChildState(aChildID).addListeneing(aMessage, aSystem, aOverrideData, aBroadcast);
 	}
 	
-	public function removeListeneingTo(aChildID:Int,aMessage:String,aSystem:Int):Void
+	public function removeListeneingTo(aChildID:Int,aMessage:MessageID,aSystem:Int):Void
 	{
 		getChildState(aChildID).removeListeneing(aMessage, aSystem);
 	}
@@ -348,11 +349,11 @@ private class SystemAux
 private class ListenerAux
 {
 	public var id:Int;
-	public var message:String;
+	public var message:MessageID;
 	public var add:Bool; //false equals to remove;
 	public var overrideData:Dynamic;
 	public var broadcast:Bool;
-	public function new(aId:Int, aMessage:String,aAdd:Bool,aOverrideData:Dynamic=null,aBroadcast:Bool=false)
+	public function new(aId:Int, aMessage:MessageID,aAdd:Bool,aOverrideData:Dynamic=null,aBroadcast:Bool=false)
 	{
 		id = aId;
 		message = aMessage;

@@ -1,4 +1,5 @@
 package entitySystem;
+import entitySystem.Message.MessageID;
 import entitySystem.SystemManager.ES;
 
 
@@ -16,7 +17,7 @@ class Entity
 	public var name:String;
 	private var mProperties:Map<Int,Property>;
 	public var Systems(default, null):Array<Int>;
-	public var Listening(default, null):Map<String,Array<ListenerAux>>;
+	public var Listening(default, null):Map<MessageID,Array<ListenerAux>>;
 	private var mBroadcast:Array<BroadcastAux>;
 	private var mChild:Entity;
 	private var mNext:Entity = null;
@@ -78,7 +79,7 @@ class Entity
 		return true;
 	}
 
-	public function addListener(aMessage:String, aListenerId:Int, aOverrideData:Dynamic = null, aBroadcast:Bool = false ):Bool
+	public function addListener(aMessage:MessageID, aListenerId:Int, aOverrideData:Dynamic = null, aBroadcast:Bool = false ):Bool
 	{
 		if (!Listening.exists(aMessage))
 		{
@@ -109,11 +110,11 @@ class Entity
 	{
 		return Systems.indexOf(aSystemId) > -1;
 	}
-	public inline function listening(aMessage:String):Bool
+	public inline function listening(aMessage:MessageID):Bool
 	{
 		return Alive&&Listening.exists(aMessage);
 	}
-	public inline function listeners(aMessage:String):Array<ListenerAux>
+	public inline function listeners(aMessage:MessageID):Array<ListenerAux>
 	{
 		return Listening.get(aMessage);
 	}
@@ -126,7 +127,7 @@ class Entity
 			Systems.splice(index, 1);
 		}
 	}
-	public function removeListener(aMessage:String,aListenerId:Int):Bool
+	public function removeListener(aMessage:MessageID,aListenerId:Int):Bool
 	{
 		var listeners = Listening.get(aMessage);
 		var index:Int = -1; 
@@ -317,9 +318,9 @@ class ListenerAux
 }
 class BroadcastAux
 {
-	public var message:String;
+	public var message:MessageID;
 	public var id:Int;
-	public function new(aId:Int,aMessage:String)
+	public function new(aId:Int,aMessage:MessageID)
 	{
 		id = aId;
 		message = aMessage;

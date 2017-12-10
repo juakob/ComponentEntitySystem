@@ -15,20 +15,22 @@ class EntityProperties
 		EntityProperties.handle.redraws = 2;
 		if (ui.window(EntityProperties.handle, 400, 100, 200, 400, true)&&true) {
 			
-			var entity:inspector.logicDomain.EntityProperties = logic.entities.currentEntity;
-			for (property in entity.properties) 
-			{
-				
-			if (ui.panel(property.handle, property.name)&&true) 
+			if(ui.panel(handle,"Property Inspector")){
+				var entity:inspector.logicDomain.EntityProperties = logic.entities.currentEntity;
+				for (property in entity.properties) 
 				{
-					for (variable in property.variables) 
+					
+				if (ui.panel(property.handle, property.name)&&true) 
 					{
-						variable.handle.text = variable.value;
-						
-						Attribute.show(ui, variable);
-						if (variable.handle.changed)
+						for (variable in property.variables) 
 						{
-							logic.updateValue(property.id, variable.id, variable.handle.text);
+							variable.handle.text = variable.value;
+							
+							Attribute.show(ui, variable);
+							if (variable.handle.changed)
+							{
+								logic.updateValue(property.id, variable.id, variable.handle.text);
+							}
 						}
 					}
 				}

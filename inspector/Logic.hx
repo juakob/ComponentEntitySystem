@@ -1,6 +1,5 @@
 package inspector;
 #if cpp
-import net.Server;
 import sys.FileSystem;
 #end
 import inspector.logicDomain.Entities;

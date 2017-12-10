@@ -15,9 +15,7 @@ class MacroTest
 	{
 		
 	}
-	macro public static function add(e:Expr) {
-    return macro $e + $e;
-  }
+	
   
   macro public static function generateExtraMethods():Array<Field> { 
 	  var code:String;
