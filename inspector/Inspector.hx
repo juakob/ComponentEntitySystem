@@ -3,6 +3,7 @@ import com.gEngine.GEngine;
 import inspector.ui.Console;
 import inspector.ui.Entities;
 import inspector.ui.EntityProperties;
+import inspector.ui.Messages;
 import kha.Assets;
 import kha.Canvas;
 import zui.Zui;
@@ -38,6 +39,7 @@ class Inspector
 		Console.draw(ui, logic);
 		Entities.draw(ui, logic);
 		EntityProperties.draw(ui, logic);
+		Messages.draw(ui, logic);
 		ui.end();	
 	}
 	public function update() {

@@ -4,10 +4,11 @@ package inspector.logicDomain;
  * ...
  * @author Joaquin
  */
-class EntityProperties
+class CurrentEntity
 {
 	public var id:String="";
 	public var properties:Array<Property> = new Array();
+	public var messages:Array<String> = new Array();
 	public function new() 
 	{
 		
@@ -45,6 +46,7 @@ class EntityProperties
 	public function reset()
 	{
 		properties.splice(0, properties.length);
+		messages.splice(0, messages.length);
 	}
 	public function deleteUnUpdatedProperties() 
 	{
@@ -61,6 +63,12 @@ class EntityProperties
 		{
 			properties.remove(prop);
 		}
+	}
+	
+	public function addMessages(aMessages:String) 
+	{
+		if (aMessages == null||aMessages=="") return;
+		messages=messages.concat( aMessages.split(";;"));
 	}
 	
 }

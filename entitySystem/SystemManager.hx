@@ -275,6 +275,9 @@ class SystemManager
 		aMessage.originalData = aMessage.data;
 		if (entity!=null&&entity.listening(aMessage.event))
 		{
+			#if expose
+			entity.addMessage(aMessage);
+			#end
 			var listeners:Array<ListenerAux> = entity.listeners(aMessage.event);
 			for (listener in listeners) 
 			{
@@ -496,7 +499,7 @@ class SystemManager
 							client.send("12?*" + parts[1] + "?*" + entityS.serialize());
 						}
 					}
-				case 13:
+				case 13://save factory local
 					{
 						var propertiesRaw:Array<String> = parts[1].split(";;");
 						var factoryName:String = propertiesRaw.shift();
@@ -505,6 +508,15 @@ class SystemManager
 						applyToFactory(factory, propertiesRaw);
 						saveData.saveFactory(factory.name, parts[1]);
 						storage.save(saveData);
+					}
+				case 14://get messages
+					{
+						var entity:Entity = getEntity(Std.parseInt(parts[1]));
+						if (entity != null)
+						{
+							entity.messageRecord = true;
+							client.send("13?*" + parts[1] + "?*"+entity.getMessagesData() );
+						}
 					}
 				default://nothing
 			}

@@ -1,6 +1,7 @@
 package entitySystem;
 import entitySystem.Message.MessageID;
 import entitySystem.SystemManager.ES;
+import entitySystem.debug.MessageProxy;
 
 
 /**
@@ -9,6 +10,33 @@ import entitySystem.SystemManager.ES;
  */
 class Entity
 {
+	#if expose
+	public var messages:Array<MessageProxy> = new Array();
+	public var messageBufferSize:Int = 5;
+	public var messageRecord:Bool;
+	public function addMessage(aMessage:Message)
+	{
+		if (!messageRecord) return;
+		if (messages.length == messageBufferSize)
+		{
+			var message = messages.pop();
+			message.copy(aMessage);
+			messages.unshift(message);
+		}else {
+			messages.push(new MessageProxy(aMessage));
+		}
+	}
+	public function getMessagesData() {
+		var string:String = "";
+		var length:Int = messages.length;
+		for (x in 0...length) 
+		{
+			string += messages.shift()+";;";
+		}
+		
+		return string;
+	}
+	#end
 	private static var s_id:Int = 0;
 	public var id:Int;
 	public var logicalChildID:Int;

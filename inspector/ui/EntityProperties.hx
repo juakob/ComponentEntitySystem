@@ -1,4 +1,5 @@
 package inspector.ui;
+import inspector.logicDomain.CurrentEntity;
 import zui.Id;
 import zui.Zui;
 
@@ -16,7 +17,7 @@ class EntityProperties
 		if (ui.window(EntityProperties.handle, 400, 100, 200, 400, true)&&true) {
 			
 			if(ui.panel(handle,"Property Inspector")){
-				var entity:inspector.logicDomain.EntityProperties = logic.entities.currentEntity;
+				var entity:CurrentEntity = logic.entities.currentEntity;
 				for (property in entity.properties) 
 				{
 					

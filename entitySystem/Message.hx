@@ -1,11 +1,12 @@
 package entitySystem;
+import haxe.macro.Context;
 import haxe.macro.Expr;
 
 /**
  * ...
  * @author Joaquin
  */
-typedef MessageID = #if true Int #else String #end ;
+typedef MessageID = #if false Int #else String #end ;
 typedef Msg = Message;
 class Message 
 {
@@ -52,7 +53,7 @@ class Message
 	{
 		if (index >= i_weak.length)
 		{
-			i_weak.push(new Message(#if true -1 #else null #end, null, null));
+			i_weak.push(new Message(#if false -1 #else null #end, null, null));
 		}
 		var message = i_weak[index];
 		message.event = aEvent;
@@ -78,7 +79,8 @@ class Message
 	public static var messageMap:Map < String,Int> = new Map();
 	 public static var messageIndex:Int = 0;
 	 macro public static function id(message:String) {
-		#if true
+		#if false
+	
 			if (message.charCodeAt(0) == 91)// "["
 			{
 				return macro { Message.dynamicID($v{message}); };
@@ -99,7 +101,7 @@ class Message
 	
 	 
 	 public static function dynamicID(message:String):MessageID {
-		#if true
+		#if false
 			if (Message.messageMap.exists(message))
 			{
 				return Message.messageMap.get(message);

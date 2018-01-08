@@ -10,11 +10,11 @@ import inspector.logicDomain.Entity;
 class Entities
 {
 	public var allEntities:Array<Entity>;
-	public var currentEntity:EntityProperties;
+	public var currentEntity:CurrentEntity;
 	public function new() 
 	{
 		allEntities = new Array();
-		currentEntity = new EntityProperties();
+		currentEntity = new CurrentEntity();
 	}
 	public function updateEntities(newEntities:Array<Entity>):Void
 	{
@@ -97,6 +97,14 @@ class Entities
 				
 			}
 			currentEntity.deleteUnUpdatedProperties();
+		}
+	}
+	
+	public function addMessages(id:String, messages:String) 
+	{
+		if (id == currentEntity.id)
+		{
+			currentEntity.addMessages(messages);
 		}
 	}
 	

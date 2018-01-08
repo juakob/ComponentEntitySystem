@@ -57,7 +57,8 @@ class Logic
 	
 		timer = Scheduler.realTime();
 		server.send("1?*;>");
-		server.send("2?*"+currentEntityId+";>");
+		server.send("2?*" + currentEntityId + ";>");
+		server.send("14?*"+currentEntityId+";>");
 		}
 		
 		
@@ -68,24 +69,25 @@ class Logic
 		while (server.messagesToRead() > 0)
 		{
 			var parts:Array<String> = server.popMessage().split("?*");
-			if (parts[0] == "1"&&!ignore1)
+			var messageId:Int = Std.parseInt(parts[0]);
+			if (messageId == 1 &&!ignore1)
 			{
 				ignore1 = true;
 				entities.updateEntities(createEntities(parts[1]));
 			}else
-			if (parts[0] == "2"&&!ignore2)
+			if (messageId == 2&&!ignore2)
 			{
 				ignore2 = true;
 				entities.updateProperties(parts[1],parts[2].split(";;"));
 			}else 
-			if(parts[0]=="5" ){
+			if(messageId==5 ){
 			//	dynamicUpdater.updateMeta(parts[1],parts[2].split(";;"));
 			}else 
-			if (parts[0] == "7" ) {
+			if (messageId == 7 ) {
 				
 			//	dynamicUpdater.updateConstants(createConstants(parts[1]));
 			}else
-			if (parts[0] == "9")
+			if (messageId == 9)
 			{
 				var factories:Array<Entity> = createEntities(parts[1]);
 			//	dynamicUpdater.updateFactories(factories);
@@ -102,16 +104,20 @@ class Logic
 				}
 			}
 			else
-			if (parts[0] == "10")
+			if (messageId == 10)
 			{
 				ignore2 = true;
 			//	dynamicUpdater.updateFactoryProperties(parts[1],parts[2].split(";;"));
 			}
 			else
-			if (parts[0] == "12")
+			if (messageId == 12)
 			{
 				ignore2 = true;
 				createFile(parts[1],parts[2]);
+			}else
+			if (messageId == 13) {
+				trace(parts[2]);
+				entities.addMessages(parts[1], parts[2]);
 			}
 		}
 		
