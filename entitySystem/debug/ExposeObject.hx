@@ -4,13 +4,14 @@ package entitySystem.debug;
  * ...
  * @author Joaquin
  */
-class ExposeObject<T>
+class ExposeObject
 {
+	public var id:Int;
 	public var object:Dynamic;
 	public var displayName:String;
-	public var get:Dynamic->T;
-	public var set:Dynamic->T->Void;
-	public function new(aObject:Dynamic,aDisplayName:String,aGet:Dynamic->T,aSet:Dynamic->T->Void) 
+	public var get:Dynamic->String;
+	public var set:Dynamic->String->Void;
+	public function new(aObject:Dynamic,aDisplayName:String,aGet:Dynamic->String,aSet:Dynamic->String->Void) 
 	{
 		object = aObject;
 		displayName = aDisplayName;
@@ -18,20 +19,30 @@ class ExposeObject<T>
 		set = aSet;
 	}
 	
+	/* INTERFACE entitySystem.debug.ExposeGet */
+	
+	public function toString():String 
+	{
+		return get(object);
+	}
+	
 }
-class ExposeFloat extends ExposeObject<Float>
+class ExposeFloat extends ExposeObject
+{
+	override public function toString():String 
+	{
+		return super.toString()+",s";
+	}
+}
+class ExposeString extends ExposeObject
 {
 
 }
-class ExposeString extends ExposeObject<String>
-{
-
-}
-class ExposeInt extends ExposeObject<Int>
+class ExposeInt extends ExposeObject
 {
 	
 }
-class ExposeBool extends ExposeObject<Bool>
+class ExposeBool extends ExposeObject
 {
 	
 }

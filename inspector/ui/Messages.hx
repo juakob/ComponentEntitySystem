@@ -16,7 +16,7 @@ class Messages
 		handle.redraws = 2;
 		if (ui.window(handle, 600, 100, 500, 400, true)) {
 			
-			if(ui.panel(handle,"Property Inspector")){
+			if(ui.panel(handle,"Messages")){
 				var entity:CurrentEntity = logic.entities.currentEntity;
 				for (x in 0...Std.int(entity.messages.length/6)) 
 				{

@@ -26,7 +26,7 @@ class TextInputAdvance
 				handle.text =ui.textToSubmit= handle.value+"";
 			}
 		}
-		ui.button("<");
+		
 		if (ui.getPushed())
 		{
 			if (ui.inputStarted)
@@ -34,10 +34,12 @@ class TextInputAdvance
 				veloctiy = 0;
 			}
 			veloctiy += acceleration;
-			handle.text=(Std.parseFloat(handle.text) - veloctiy)+"";
+			handle.text = (Std.parseFloat(handle.text) - veloctiy) + "";
+			trace(handle.text);
 			handle.changed = true;
 		}
-		ui.button(">");
+		ui.button("<");
+		
 		if (ui.getPushed())
 		{
 			if (ui.inputStarted)
@@ -48,6 +50,7 @@ class TextInputAdvance
 			handle.text=(Std.parseFloat(handle.text)+ veloctiy)+"";
 			handle.changed = true;
 		}
+		ui.button(">");
 		ui.separator();
 		
 		return handle.value;

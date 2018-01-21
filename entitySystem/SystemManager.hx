@@ -5,6 +5,7 @@ import com.TimeManager;
 import entitySystem.Entity;
 import entitySystem.Message.MessageID;
 import entitySystem.constants.Constant;
+import entitySystem.debug.Expose;
 import entitySystem.storage.ISave;
 import entitySystem.storage.SaveData;
 import inspector.net.IServer;
@@ -517,6 +518,14 @@ class SystemManager
 							entity.messageRecord = true;
 							client.send("13?*" + parts[1] + "?*"+entity.getMessagesData() );
 						}
+					}
+				case 15://get expose objects
+					{
+						client.send("14?*" + Expose.i.encode());
+					}
+				case 16:
+					{
+						Expose.i.set(Std.parseInt(parts[1]), parts[2]);
 					}
 				default://nothing
 			}

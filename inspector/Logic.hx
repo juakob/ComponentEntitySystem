@@ -3,6 +3,7 @@ package inspector;
 import sys.FileSystem;
 #end
 import inspector.logicDomain.Entities;
+import inspector.logicDomain.ExposeObjects;
 import inspector.net.IServer;
 import inspector.net.Local;
 import inspector.io.RWData;
@@ -25,6 +26,7 @@ class Logic
 	
 	
 	public var entities:Entities;
+	public var exposeObjects:ExposeObjects;
 	public function new() 
 	{
 	
@@ -32,6 +34,7 @@ class Logic
 		server.onConnection(onConnection);
 	
 		entities = new Entities();
+		exposeObjects = new ExposeObjects();
 	}
 	
 	function onConnection() 
@@ -58,7 +61,8 @@ class Logic
 		timer = Scheduler.realTime();
 		server.send("1?*;>");
 		server.send("2?*" + currentEntityId + ";>");
-		server.send("14?*"+currentEntityId+";>");
+		server.send("14?*" + currentEntityId + ";>");
+		server.send("15?*;>");
 		}
 		
 		
@@ -116,8 +120,10 @@ class Logic
 				createFile(parts[1],parts[2]);
 			}else
 			if (messageId == 13) {
-				trace(parts[2]);
 				entities.addMessages(parts[1], parts[2]);
+			}else
+			if (messageId == 14) {
+				exposeObjects.set(parts[1]);
 			}
 		}
 		
@@ -133,7 +139,9 @@ class Logic
 		
 	}
 	private function createEntities(message:String):Array<Entity> {
+		
 		var entities:Array<Entity> = new Array();
+		if (message == null) return entities;
 		var entitiesRaw:Array<String> = message.split("*");
 		for (entityRaw in entitiesRaw) 
 		{
@@ -166,7 +174,6 @@ class Logic
 	}
 	public function changeEntity(aEntity:Entity)
 	{
-		
 		currentEntityId = aEntity.id;
 		server.send("2?*" + currentEntityId + ";>");
 		server.send("5?*" + currentEntityId + ";>");
@@ -223,5 +230,9 @@ class Logic
 		
 		server.send("8?*"+constantClass+"?*"+constant+"?*"+value+";>");
 		
+	}
+	public function updateExpose(aId:Int, aValue:String)
+	{
+		server.send("16?*"+aId+"?*"+aValue+";>");
 	}
 }

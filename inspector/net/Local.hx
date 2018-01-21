@@ -24,7 +24,7 @@ class Local implements IServer
 	
 	public function send(aMessage:String):Void 
 	{
-		messagesSend.push(aMessage.substr(0,aMessage.length-2));
+		messagesSend.push(aMessage);
 	}
 
 	public function popMessage():String 
