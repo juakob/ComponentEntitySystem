@@ -36,7 +36,7 @@ class Expose
 		var string:String = "";
 		for (element in all) 
 		{
-			string += element.id+","+element.displayName+","+element.toString();
+			string += element.id+","+element.displayName+","+element.toString()+";;";
 		}
 		return string;
 	}
@@ -112,5 +112,11 @@ class Expose
 											);
 		 };
 		#end
+	 }
+	 
+	 public function destroy() 
+	 {
+		 i = null;
+		 initialized = false;
 	 }
 }

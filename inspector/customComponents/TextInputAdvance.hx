@@ -23,7 +23,7 @@ class TextInputAdvance
 			{
 				handle.value = value;
 			}else {
-				handle.text =ui.textToSubmit= handle.value+"";
+				handle.text =ui.textToSubmit= floatToStringPrecision(handle.value,4);
 			}
 		}
 		
@@ -34,8 +34,7 @@ class TextInputAdvance
 				veloctiy = 0;
 			}
 			veloctiy += acceleration;
-			handle.text = (Std.parseFloat(handle.text) - veloctiy) + "";
-			trace(handle.text);
+			handle.text = floatToStringPrecision((Std.parseFloat(handle.text)- veloctiy),2);
 			handle.changed = true;
 		}
 		ui.button("<");
@@ -47,13 +46,17 @@ class TextInputAdvance
 				veloctiy = 0;
 			}
 			veloctiy += acceleration;
-			handle.text=(Std.parseFloat(handle.text)+ veloctiy)+"";
+			handle.text=floatToStringPrecision((Std.parseFloat(handle.text)+ veloctiy),2);
 			handle.changed = true;
 		}
 		ui.button(">");
 		ui.separator();
 		
 		return handle.value;
+	}
+	public static function floatToStringPrecision(n:Float, prec:Int){
+			n *= Math.pow(10, prec);
+			return Math.round(n) / Math.pow(10, prec)+"";
 	}
 		
 }

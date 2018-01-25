@@ -1,4 +1,5 @@
 package inspector.ui;
+import inspector.customComponents.TextInputAdvance;
 import inspector.logicDomain.CurrentEntity;
 import zui.Id;
 import zui.Zui;
@@ -25,8 +26,11 @@ class EntityProperties
 					{
 						for (variable in property.variables) 
 						{
-							variable.handle.text = variable.value;
-							
+							if(variable.type=="f"){
+								variable.handle.text = TextInputAdvance.floatToStringPrecision(Std.parseFloat(variable.value),2);
+							}else {
+								variable.handle.text = variable.value;
+							}
 							Attribute.show(ui, variable);
 							if (variable.handle.changed)
 							{

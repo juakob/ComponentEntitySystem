@@ -67,7 +67,9 @@ class CurrentEntity
 	
 	public function addMessages(aMessages:String) 
 	{
-		if (aMessages == null||aMessages=="") return;
+		
+		if (aMessages == null || aMessages == "") return;
+		aMessages = aMessages.substr(0, aMessages.length - 2);
 		messages=messages.concat( aMessages.split(";;"));
 	}
 	

@@ -24,7 +24,7 @@ class Logic
 	var server:IServer;
 	
 	
-	
+	public var visible:Bool;
 	public var entities:Entities;
 	public var exposeObjects:ExposeObjects;
 	public function new() 

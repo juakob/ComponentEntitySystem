@@ -43,6 +43,7 @@ class SystemManager
 	public static function init():Void
 	{
 		#if !macro
+		if (i != null) i.destroy();
 		i = new SystemManager(new entitySystem.storage.SaveKhaImpl());
 		#end
 		
@@ -339,6 +340,7 @@ class SystemManager
 		mListeners = null;
 		#if expose
 			mEntities = null;
+			Expose.i.destroy();
 		#end
 		mSystems.splice(0, mSystems.length);
 		mSystems = null;

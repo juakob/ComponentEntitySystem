@@ -38,10 +38,12 @@ class Inspector
 			//}
 		//}
 		Console.draw(ui, logic);
-		Entities.draw(ui, logic);
-		EntityProperties.draw(ui, logic);
-		Messages.draw(ui, logic);
-		Expose.draw(ui, logic);
+		if(logic.visible){
+			Entities.draw(ui, logic);
+			EntityProperties.draw(ui, logic);
+			Messages.draw(ui, logic);
+			Expose.draw(ui, logic);
+		}
 		ui.end();	
 	}
 	public function update() {
