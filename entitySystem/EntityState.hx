@@ -46,9 +46,9 @@ class EntityState
 		mListener.push(new ListenerAux(aSystem, aMessage, true,aOverrideData,aBroadcast));
 	}
 	
-	public function removeListeneing(aMessage:MessageID,aSystem:Int):Void
+	public function removeListeneing(aMessage:MessageID,aSystem:Int,aOverrideData:Dynamic=null,aBroadcast:Bool=false):Void
 	{
-		mListener.push(new ListenerAux(aSystem, aMessage, false));
+		mListener.push(new ListenerAux(aSystem, aMessage,aOverrideData, aBroadcast));
 	}
 	public function addProperty(aProperty:Property, aDelete:Bool = false):Void
 	{
@@ -159,7 +159,7 @@ class EntityState
 		{
 			childState.removeState(aEntity.getChild(childState.mChildID));
 		}
-		if (onSet != null)
+		if (onRemove != null)
 		{
 			onRemove(aEntity);
 		}

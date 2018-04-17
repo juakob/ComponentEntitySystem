@@ -2,6 +2,7 @@ package entitySystem.properties;
 import entitySystem.Entity;
 import entitySystem.EntityState;
 import entitySystem.Property;
+import entitySystem.SystemManager.ES;
 
 /**
  * ...
@@ -69,6 +70,11 @@ class PrStateManager implements Property
 		return getSlot(aSlot).state.name;
 	}
 	public function change(aSlot:String, ?aState:String, aEntity:Entity):Void
+	{
+		ES.i.changeStateDelay(this,aSlot,aState,aEntity);
+	}
+	
+	public function changeDelay(aSlot:String, ?aState:String, aEntity:Entity):Void
 	{
 		var slot = getSlot(aSlot);
 		if (!slot.disable)

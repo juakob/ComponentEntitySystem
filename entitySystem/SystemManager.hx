@@ -6,6 +6,9 @@ import entitySystem.Entity;
 import entitySystem.Message.MessageID;
 import entitySystem.constants.Constant;
 import entitySystem.debug.Expose;
+#if !macro
+import entitySystem.helper.DelaySlotChange;
+#end
 import entitySystem.storage.ISave;
 import entitySystem.storage.SaveData;
 import inspector.net.IServer;
@@ -87,7 +90,12 @@ class SystemManager
 		processMessages(aDt);
 		proceedWithDelete();
 		
+		#if !macro
+		processDelaySlotChanges();
+		#end
+		
 	}
+	
 	public function add(sys:ISystem):Void
 	{
 		mSystems.push(sys);
@@ -603,5 +611,36 @@ class SystemManager
 		return i != null;
 	}
 	
+	#if !macro
+	var delaySlotChanges:Array < DelaySlotChange>=new Array();
+	var slotChangeCounter:Int = 0;
 	
+	public function changeStateDelay(prStateManager:entitySystem.properties.PrStateManager, aSlot:String, aState:String, aEntity:Entity) 
+	{
+		if (delaySlotChanges.length <= slotChangeCounter) delaySlotChanges.push(new DelaySlotChange());
+		trace(aSlot + " " + aState +" "+slotChangeCounter);
+		var slotChange = delaySlotChanges[slotChangeCounter];
+		slotChange.stateManager = prStateManager;
+		slotChange.slot = aSlot;
+		slotChange.state = aState;
+		slotChange.entity = aEntity;
+		++slotChangeCounter;
+	}
+	
+	
+	function processDelaySlotChanges() 
+	{
+		var counter:Int = 0;
+		while (counter<slotChangeCounter) 
+		{
+			var slotChange = delaySlotChanges[counter];
+			slotChange.stateManager.changeDelay(slotChange.slot, slotChange.state, slotChange.entity);
+			trace(slotChange.slot + " " + slotChange.state);
+			slotChange.reset();
+			++counter;
+		}
+		slotChangeCounter = 0;
+	}
+	
+	#end
 }

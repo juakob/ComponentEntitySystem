@@ -16,7 +16,7 @@ class RsChangeSlotState extends Listener
 	{
 		var state:PrStateManager = cast aMessage.to.get(PrStateManager.ID);
 		state.change(aMessage.data[0],aMessage.data[1], aMessage.to);
-	
+		trace(aMessage.data[0]+" "+ aMessage.data[1]);
 		return SUCCESS;
 	}
 }
