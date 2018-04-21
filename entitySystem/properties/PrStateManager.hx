@@ -71,6 +71,8 @@ class PrStateManager implements Property
 	}
 	public function change(aSlot:String, ?aState:String, aEntity:Entity):Void
 	{
+		var slot = getSlot(aSlot);
+		if (slot.state != null && slot.state.name == aState) return;
 		ES.i.changeStateDelay(this,aSlot,aState,aEntity);
 	}
 	
@@ -79,16 +81,16 @@ class PrStateManager implements Property
 		var slot = getSlot(aSlot);
 		if (!slot.disable)
 		{
-		if (slot.state != null)
-		{
-			slot.state.unapplyState(aEntity);
-		}
-		if (aState == null)
-		{
-			slot.state = null;
-			return;
-		}
-		slot.state = getState(aState);
+			if (slot.state != null)
+			{
+				slot.state.unapplyState(aEntity);
+			}
+			if (aState == null)
+			{
+				slot.state = null;
+				return;
+			}
+			slot.state = getState(aState);
 		
 			slot.state.applyState(aEntity);
 		}
