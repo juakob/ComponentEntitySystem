@@ -618,7 +618,6 @@ class SystemManager
 	public function changeStateDelay(prStateManager:entitySystem.properties.PrStateManager, aSlot:String, aState:String, aEntity:Entity) 
 	{
 		if (delaySlotChanges.length <= slotChangeCounter) delaySlotChanges.push(new DelaySlotChange());
-		trace(aSlot + " " + aState +" "+slotChangeCounter);
 		var slotChange = delaySlotChanges[slotChangeCounter];
 		slotChange.stateManager = prStateManager;
 		slotChange.slot = aSlot;
@@ -635,7 +634,6 @@ class SystemManager
 		{
 			var slotChange = delaySlotChanges[counter];
 			slotChange.stateManager.changeDelay(slotChange.slot, slotChange.state, slotChange.entity);
-			trace(slotChange.slot + " " + slotChange.state);
 			slotChange.reset();
 			++counter;
 		}
