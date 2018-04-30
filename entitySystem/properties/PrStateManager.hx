@@ -79,19 +79,18 @@ class PrStateManager implements Property
 	public function changeDelay(aSlot:String, ?aState:String, aEntity:Entity):Void
 	{
 		var slot = getSlot(aSlot);
+		if (!slot.disable && slot.state != null)
+		{
+			slot.state.unapplyState(aEntity);
+		}
+		if (aState == null)
+		{
+			slot.state = null;
+			return;
+		}
+		slot.state = getState(aState);
 		if (!slot.disable)
 		{
-			if (slot.state != null)
-			{
-				slot.state.unapplyState(aEntity);
-			}
-			if (aState == null)
-			{
-				slot.state = null;
-				return;
-			}
-			slot.state = getState(aState);
-		
 			slot.state.applyState(aEntity);
 		}
 	}
@@ -209,7 +208,17 @@ class PrStateManager implements Property
 		}
 		return null;
 	}
-	
+	public function serialize():String
+	{
+		var encode:String =  "PrStatManager"+"?"+ID+"?";
+		for (slot in mSlots) 
+		{
+			var state:String = slot.state != null?slot.state.name:"null";
+			encode+= slot.name +",s," +!slot.disable +"-"+state+ "?";
+		}
+		
+		return encode+";;";
+	}
 }
 class Slot
 {

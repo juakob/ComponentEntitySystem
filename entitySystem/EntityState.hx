@@ -240,6 +240,7 @@ class EntityState
 			cl.mMessages.push(message.clone());
 		}
 		cl.onSet = onSet;
+		cl.onRemove = onRemove;
 		return cl;
 	}
 	public function set(entityState:EntityState):Void
@@ -364,7 +365,7 @@ private class ListenerAux
 	}
 	public function clone():ListenerAux
 	{
-		return new ListenerAux(id, message, add,overrideData);
+		return new ListenerAux(id, message, add,overrideData,broadcast);
 	}
 
 }

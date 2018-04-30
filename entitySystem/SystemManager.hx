@@ -152,6 +152,12 @@ class SystemManager
 		{
 			mSystemsDictionary.get(aSystemId).add(aEntity, aFirst);
 		}
+		#if debug
+		else {
+			trace("warning : entityId " + aEntity.id + " was re added to system " + mSystemsDictionary.get(aSystemId));
+		}
+		#end
+		
 	}
 	public function subscribeEntity(aEntity:Entity, aMessage:MessageID , aListenerId:Int, aOverrideData:Dynamic = null, aBroadcast:Bool = false):Void
 	{
@@ -173,6 +179,11 @@ class SystemManager
 				mBroadcast.set(aMessage, [aEntity]);
 			}
 		}
+		#if debug
+		else {
+			trace("warning : entityId " + aEntity.id + " was not added to listener " + aMessage);
+		}
+		#end
 	}
 	
 	

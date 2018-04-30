@@ -13,8 +13,12 @@ class RsEnableSlot extends Listener
 	override public function onEvent(aMessage:Message):MessageResult 
 	{
 		var stateManager:PrStateManager = Listener.get(PrStateManager.ID);
-		stateManager.enable(aMessage.data, aMessage.to);
-		
+		var counter:Int = 0;
+		while (counter < aMessage.data.length)
+		{
+			stateManager.enable(aMessage.data[counter], aMessage.to);
+			++counter;
+		}
 		return SUCCESS;
 	}
 }
