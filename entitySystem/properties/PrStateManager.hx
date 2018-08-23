@@ -72,7 +72,6 @@ class PrStateManager implements Property
 	public function change(aSlot:String, ?aState:String, aEntity:Entity):Void
 	{
 		var slot = getSlot(aSlot);
-		if (slot.state != null && slot.state.name == aState) return;
 		ES.i.changeStateDelay(this,aSlot,aState,aEntity);
 	}
 	
@@ -114,6 +113,12 @@ class PrStateManager implements Property
 	public function enable(aSlot:String, aEntity:Entity):Void
 	{
 		var slot = getSlot(aSlot);
+		#if debug
+		if (slot == null)
+		{
+			throw aSlot +" slot not found ";
+		}
+		#end
 		if (slot.state != null&&slot.disable)
 		{
 			slot.state.applyState(aEntity);

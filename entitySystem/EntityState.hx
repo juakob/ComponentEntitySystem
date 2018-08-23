@@ -36,7 +36,17 @@ class EntityState
 	{
 		mSystems.push(new SystemAux(aSystem, aSafeAdd, true));
 	}
+	public function init():Void
+	{
+		for (sys in mSystems) 
+		{
+			if (sys.add) {
+				ES.i.addSystem(sys.id);
+			}
+		}
 	
+		ES.i.sortSystems();
+	}
 	public function removeSystem(aSystem:Int):Void
 	{
 		mSystems.push(new SystemAux(aSystem, false, false));
@@ -69,6 +79,12 @@ class EntityState
 	
 	public function applyState(aEntity:Entity):Void
 	{
+		for (message in mMessages)
+		{
+			message.to = aEntity;
+			message.from = aEntity;
+			ES.i.dispatch(message);
+		}
 		for (property in mPropertiesToAdd) 
 		{
 			aEntity.add(property.property,true);
@@ -111,12 +127,7 @@ class EntityState
 			childState.applyState(aEntity.getChild(childState.mChildID));
 		}
 		
-		for (message in mMessages)
-		{
-			message.to = aEntity;
-			message.from = aEntity;
-			ES.i.dispatch(message);
-		}
+		
 		if (onSet != null)
 		{
 			onSet(aEntity);

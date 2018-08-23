@@ -39,7 +39,7 @@ class Entity
 	#end
 	private static var s_id:Int = 0;
 	public var id:Int;
-	public var logicalChildID:Int;
+	public var logicChildID:Int;
 	public var Alive:Bool;
 	public var InPool:Bool;
 	public var name:String;
@@ -295,7 +295,7 @@ class Entity
 		var next = mChild;
 		while (next!=null)
 		{
-			if (next.logicalChildID == aLogicChildId)
+			if (next.logicChildID == aLogicChildId)
 			{
 				return next;
 			}

@@ -36,6 +36,8 @@ class SystemManager
 	private var mPropertiesPool:Map<Int,PropertyPool>;
 	private var mBroadcast:Map<MessageID,Array<Entity>>;
 	
+	private var mSystemsClass:Iterable<Class<ISystem>>;
+	
 	var storage:ISave;
 	var saveData:SaveData;
 	public static var i(get,null):SystemManager;
@@ -53,6 +55,7 @@ class SystemManager
 	}
 	private function new(saveImp:ISave) 
 	{
+		mSystemsClass=cast CompileTime.getAllClasses(EntitySystem);
 		client = LocalClient.i; // new FClient();
 		storage = saveImp;
 		if (storage.canLoad())
@@ -88,14 +91,21 @@ class SystemManager
 			
 		
 		processMessages(aDt);
-		proceedWithDelete();
-		
 		#if !macro
 		processDelaySlotChanges();
 		#end
-		
+		proceedWithDelete();
 	}
-	
+	public function addSystem(id:Int):Void
+	{
+		for (sys in mSystemsClass) 
+		{
+			if (id == (cast sys).ID) {
+				add(Type.createInstance(sys, []));	
+				
+			}
+		}
+	}
 	public function add(sys:ISystem):Void
 	{
 		mSystems.push(sys);
@@ -105,6 +115,10 @@ class SystemManager
 	{
 		mSystems.push(sys);
 		mSystemsDictionary.set(id, sys);
+	}
+	public function sortSystems():Void
+	{
+		mSystems.sort(function(a:ISystem, b:ISystem):Int { return a.priority() < b.priority()?1: -1; } );
 	}
 	/**
 	 * Groups dont get updated. Use groups to query specific data from there entities
@@ -641,12 +655,18 @@ class SystemManager
 	function processDelaySlotChanges() 
 	{
 		var counter:Int = 0;
-		while (counter<slotChangeCounter) 
+		var totalCounter:Int = slotChangeCounter;
+		var traceInfo:Bool = false;
+		while (counter<totalCounter) 
 		{
 			var slotChange = delaySlotChanges[counter];
+			if (slotChange.state == "groundFall" || slotChange.state == "damage") traceInfo = true;
+			if (traceInfo) {
+			trace("change to " + counter + "/" + slotChangeCounter + " "+slotChange.entity.id+" "+slotChange.slot+" " + slotChange.state );	
+			}
 			slotChange.stateManager.changeDelay(slotChange.slot, slotChange.state, slotChange.entity);
-			slotChange.reset();
 			++counter;
+			slotChange.reset();
 		}
 		slotChangeCounter = 0;
 	}

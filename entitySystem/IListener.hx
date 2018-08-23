@@ -11,4 +11,5 @@ interface IListener
 	function add(aEntity:Entity,aFirst:Bool=false):Void;
 	function remove(aEntity:Entity):Void;
 	function onEvent(aMessage:Message):MessageResult;
+	function priority():Int;
 }

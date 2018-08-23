@@ -45,4 +45,9 @@ class Listener implements IListener
 		return NOT_IMPLEMENTED;
 	}
 	
+	public function priority():Int 
+	{
+		return 0;
+	}
+	
 }

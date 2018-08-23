@@ -8,6 +8,8 @@ import entitySystem.MessageResult;
  * ...
  * @author Joaquin
  */
+ 
+@:keepSub
 @:autoBuild(entitySystem.macros.SystemIdMacro.build())
 @:autoBuild(entitySystem.macros.MacroTest.generateExtraMethods())
 @:autoBuild(entitySystem.macros.MacroTest.createFilterFunctions())
@@ -99,9 +101,16 @@ class EntitySystem<T> implements ISystem
 		return SUCCESS;
 	}
 	
+	
+	
 	public function onEvent(message:Message):MessageResult 
 	{
 		return MessageResult.NOT_IMPLEMENTED;
+	}
+	
+	public function priority():Int 
+	{
+		return 1;
 	}
 	
 }
