@@ -206,6 +206,12 @@ class Entity
 		if (Alive) {
 			ES.i.deleteEntity(this);
 			Alive = false;
+			var next:Entity = mChild;
+			while(next != null) 
+			{
+				next.kill();
+				next = next.mNext;
+			}
 		}
 	}
 	//public function clone():Void
@@ -302,6 +308,13 @@ class Entity
 			next = next.mNext;
 		}
 		throw "no child with logic id " + aLogicChildId;
+	}
+	public function sendMessageToChild(aMessage:Message):Void
+	{
+		if (mChild != null) {
+			aMessage.to = mChild;
+			ES.i.dispatch(aMessage);
+		}
 	}
 	
 	public function hasProperty(id:Int) :Bool

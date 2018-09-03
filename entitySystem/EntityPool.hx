@@ -31,4 +31,8 @@ class EntityPool
 		mPool.push(entity);
 		return entity;
 	}
+	public function currentSize():Int
+	{
+		return mPool.length;
+	}
 }

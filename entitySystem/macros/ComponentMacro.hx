@@ -5,7 +5,6 @@ import haxe.macro.Context;
 import haxe.macro.Expr;
 import haxe.macro.ExprTools;
 import haxe.macro.Type;
-import sys.db.Types.STinyInt;
 
 class ComponentMacro
 {
