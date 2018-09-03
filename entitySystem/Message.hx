@@ -6,7 +6,7 @@ import haxe.macro.Expr;
  * ...
  * @author Joaquin
  */
-typedef MessageID = #if false Int #else String #end ;
+typedef MessageID = #if RELEASE Int #else String #end ;
 typedef Msg = Message;
 class Message 
 {
@@ -79,7 +79,7 @@ class Message
 	public static var messageMap:Map < String,Int> = new Map();
 	 public static var messageIndex:Int = 0;
 	 macro public static function id(message:String) {
-		#if false
+		#if RELEASE
 	
 			if (message.charCodeAt(0) == 91)// "["
 			{
@@ -101,7 +101,7 @@ class Message
 	
 	 
 	 public static function dynamicID(message:String):MessageID {
-		#if false
+		#if RELEASE
 			if (Message.messageMap.exists(message))
 			{
 				return Message.messageMap.get(message);

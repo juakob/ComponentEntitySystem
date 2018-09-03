@@ -1,4 +1,5 @@
 package entitySystem;
+import entitySystem.EntityState;
 import entitySystem.Message.MessageID;
 import entitySystem.properties.ComplexProperty;
 import entitySystem.SystemManager.ES;
@@ -12,6 +13,8 @@ class EntityState
 {
 	public var name:String;
 	private var mSystems:Array<SystemAux>;
+	private var mRequiredSystems:Array<Int>;
+	private var mRequiredListeners:Array<Int>;
 	private var mPropertiesToAdd:Array<PropertyAux>;
 	private var mPropertiesToRemove:Array<Int>;
 	private var mComplexProperties:Array<ComplexProperty>;
@@ -19,18 +22,22 @@ class EntityState
 	private var mMessages:Array<Message>;
 	public var onSet:Entity->Void;
 	public var onRemove:Entity->Void;
+	public var mStates:Array<EntityState>;
 	
 	var mChildID:Int;
 	var mChildren:Array<EntityState>;
 	public function new() 
 	{
 		mSystems = new Array();
+		mRequiredSystems=new Array();
+		mRequiredListeners=new Array();
 		mPropertiesToAdd = new Array();
 		mPropertiesToRemove = new Array();
 		mComplexProperties = new Array();
 		mListener = new Array();
 		mMessages = new Array();
 		mChildren = new Array();
+		mStates = new Array();
 	}
 	public function addSystem(aSystem:Int, aSafeAdd:Bool = false):Void
 	{
@@ -44,7 +51,21 @@ class EntityState
 				ES.i.addSystem(sys.id);
 			}
 		}
-	
+		for(sysId in mRequiredSystems)
+		{
+			ES.i.addSystem(sysId);
+		}
+		for ( listener in mListener)
+		{
+			if (listener.add)
+			{
+				ES.i.addListenerBy(listener.id);
+			}
+		}
+		for(listenerId in mRequiredListeners)
+		{
+			ES.i.addListenerBy(listenerId);
+		}
 		ES.i.sortSystems();
 	}
 	public function removeSystem(aSystem:Int):Void
@@ -55,7 +76,14 @@ class EntityState
 	{
 		mListener.push(new ListenerAux(aSystem, aMessage, true,aOverrideData,aBroadcast));
 	}
-	
+	public function requireSystem(aSystem:Int):Void
+	{
+		mRequiredSystems.push(aSystem);
+	}
+	public function requireListeners(aSystem:Int):Void
+	{
+		mRequiredListeners.push(aSystem);
+	}
 	public function removeListeneing(aMessage:MessageID,aSystem:Int,aOverrideData:Dynamic=null,aBroadcast:Bool=false):Void
 	{
 		mListener.push(new ListenerAux(aSystem, aMessage,aOverrideData, aBroadcast));
@@ -76,9 +104,14 @@ class EntityState
 	{
 		mMessages.push(aMessage);
 	}
-	
+	public function addState(findTargetState:EntityState):Void
+	{
+		mStates.push(findTargetState);
+	}
 	public function applyState(aEntity:Entity):Void
 	{
+		aEntity.name = name;
+		
 		for (message in mMessages)
 		{
 			message.to = aEntity;
@@ -121,11 +154,17 @@ class EntityState
 				systemManager.unsubscribeEntity(aEntity,listener.message, listener.id);
 			}
 		}
+		for (subStates in mStates) 
+		{
+			subStates.applyState(aEntity);
+		}
 		
 		for (childState in mChildren) 
 		{
 			childState.applyState(aEntity.getChild(childState.mChildID));
 		}
+		
+		
 		
 		
 		if (onSet != null)
@@ -337,6 +376,8 @@ class EntityState
 		}
 		throw "property with id " + aId + " not found";
 	}
+	
+	
 	#end
 }
 

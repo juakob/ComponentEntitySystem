@@ -18,7 +18,6 @@ class RsChangeSlotState extends Listener
 		var counter:Int = 0;
 		while (counter < aMessage.data.length)
 		{
-			if (aMessage.data[counter + 1] == "groundFall" || aMessage.data[counter + 1] == "damage") trace("change to "+counter+" " + aMessage.data[counter + 1]);
 			state.change(aMessage.data[counter], aMessage.data[counter + 1], aMessage.to);
 			counter += 2;
 		}

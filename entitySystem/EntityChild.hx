@@ -14,6 +14,11 @@ class EntityChild extends Entity
 		mParent = aParent;
 		mParent.addChild(this);
 	}
+	public function reParent(aParent:Entity) 
+	{
+		mParent = aParent;
+		mParent.addChild(this);
+	}
 	override public function get(aId:Int):Property 
 	{
 		var prop:Property = mProperties.get(aId);

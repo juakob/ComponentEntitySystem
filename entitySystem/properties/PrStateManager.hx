@@ -36,6 +36,10 @@ class PrStateManager implements Property
 		var state = new StateGroup();
 		state.name = aName;
 		state.states = aStates;
+		for (s in aStates) 
+		{
+			s.init();
+		}
 		mStates.push(state);
 	}
 	public function addState2(aName:String, aStates:Array<Int>):Void

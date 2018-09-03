@@ -37,6 +37,7 @@ class SystemManager
 	private var mBroadcast:Map<MessageID,Array<Entity>>;
 	
 	private var mSystemsClass:Iterable<Class<ISystem>>;
+	private var mListenerClass:Iterable<Class<IListener>>;
 	
 	var storage:ISave;
 	var saveData:SaveData;
@@ -55,7 +56,8 @@ class SystemManager
 	}
 	private function new(saveImp:ISave) 
 	{
-		mSystemsClass=cast CompileTime.getAllClasses(EntitySystem);
+		mSystemsClass = cast CompileTime.getAllClasses(EntitySystem);
+		mListenerClass = cast CompileTime.getAllClasses(Listener);
 		client = LocalClient.i; // new FClient();
 		storage = saveImp;
 		if (storage.canLoad())
@@ -101,15 +103,28 @@ class SystemManager
 		for (sys in mSystemsClass) 
 		{
 			if (id == (cast sys).ID) {
-				add(Type.createInstance(sys, []));	
-				
+				var system = Type.createInstance(sys, []);
+				if (system == null) throw "cant create " + sys;
+				add(system);	
+			}
+		}
+	}
+	public function addListenerBy(id:Int):Void
+	{
+		for (sys in mListenerClass) 
+		{
+			if (id == (cast sys).ID) {
+				addListener(Type.createInstance(sys, []));	
 			}
 		}
 	}
 	public function add(sys:ISystem):Void
 	{
-		mSystems.push(sys);
-		mSystemsDictionary.set(sys.id(), sys);
+		if (!mSystemsDictionary.exists(sys.id()))
+		{
+			mSystems.push(sys);
+			mSystemsDictionary.set(sys.id(), sys);
+		}
 	}
 	public function add2(sys:ISystem,id:Int):Void
 	{
@@ -154,7 +169,10 @@ class SystemManager
 	//}
 	public function addListener(aListener:IListener)
 	{
-		mListeners.set(aListener.id(), aListener);
+		if (!mListeners.exists(aListener.id()))
+		{
+			mListeners.set(aListener.id(), aListener);
+		}
 	}
 	public function addListener2(aListener:IListener, id:Int) 
 	{
@@ -164,6 +182,7 @@ class SystemManager
 	{
 		if (aEntity.addSystem(aSystemId))
 		{
+			if (mSystemsDictionary.get(aSystemId)==null) throw "cant add "+aSystemId;
 			mSystemsDictionary.get(aSystemId).add(aEntity, aFirst);
 		}
 		#if debug
