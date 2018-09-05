@@ -4,53 +4,38 @@ package inspector.net;
  * ...
  * @author Joaquin
  */
-class Local implements IServer
-{
+class Local implements IServer {
 	var messagesSend:Array<String>;
 	var messagesReceive:Array<String>;
-	
-	public function new() 
-	{
+
+	public function new() {
 		messagesSend = new Array();
 		messagesReceive = new Array();
 	}
-	
+
 	/* INTERFACE inspector.net.IServer */
-	
-	public function update() 
-	{
-		
-	}
-	
-	public function send(aMessage:String):Void 
-	{
+	public function update() {}
+
+	public function send(aMessage:String):Void {
 		messagesSend.push(aMessage);
 	}
 
-	public function popMessage():String 
-	{
+	public function popMessage():String {
 		var message:String = messagesReceive.pop();
 		return message;
 	}
-	
-	public function messagesToRead():Int 
-	{
+
+	public function messagesToRead():Int {
 		return messagesReceive.length;
 	}
-	
+
 	/* INTERFACE inspector.net.IServer */
-	
-	public function onConnection(callBack:Void->Void)
-	{
+	public function onConnection(callBack:Void->Void) {
 		callBack();
 	}
-	public function close()
-	{
+
+	public function close() {
 		messagesReceive.splice(0, messagesReceive.length);
 		messagesSend.splice(0, messagesSend.length);
 	}
-	
-	
-	
-	
 }

@@ -6,7 +6,4 @@ import entitySystem.PropertyNode;
  * ...
  * @author Joaquin
  */
-class NdEmpty extends PropertyNode
-{
-
-}
+class NdEmpty extends PropertyNode {}

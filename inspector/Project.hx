@@ -12,14 +12,14 @@ class Project {
 	var logic:Logic;
 	var dynamicUpdater:panel.TabHub;
 	var initialized:Bool = false;
+
 	public function new() {
 		System.notifyOnRender(render);
 		Scheduler.addTimeTask(update, 0, 1 / 60);
 		Assets.loadEverything(init);
 	}
-	
-	function init() 
-	{
+
+	function init() {
 		Toolkit.init();
 		logic = new Logic();
 		dynamicUpdater = new TabHub(logic);
@@ -27,16 +27,16 @@ class Project {
 		initialized = true;
 	}
 
-	function update(): Void {
-		if(initialized){
+	function update():Void {
+		if (initialized) {
 			dynamicUpdater.update();
 			logic.update();
 		}
 	}
 
-	function render(framebuffer: Framebuffer): Void {
-		if(initialized){
-			 var g = framebuffer.g2;
+	function render(framebuffer:Framebuffer):Void {
+		if (initialized) {
+			var g = framebuffer.g2;
 			g.begin(true, 0xFFFFFF);
 			Screen.instance.renderTo(g);
 			g.end();

@@ -1,4 +1,5 @@
 package inspector;
+
 #if cpp
 import sys.FileSystem;
 #end
@@ -12,139 +13,102 @@ import kha.Scheduler;
 import inspector.logicDomain.ConstantClass;
 import inspector.logicDomain.Entity;
 
-
-
 /**
  * ...
  * @author Joaquin
  */
-class Logic
-{
-	
+class Logic {
 	var server:IServer;
-	
-	
+
 	public var visible:Bool;
 	public var entities:Entities;
 	public var exposeObjects:ExposeObjects;
-	public function new() 
-	{
-	
-		server = LocalServer.i;//new Server();
+
+	public function new() {
+		server = LocalServer.i; // new Server();
 		server.onConnection(onConnection);
-	
+
 		entities = new Entities();
 		exposeObjects = new ExposeObjects();
 	}
-	
-	function onConnection() 
-	{
-	
+
+	function onConnection() {
 		checkLocalFiles = true;
-		server.send("7?;>");//get constants
-		server.send("9?;>");//get factories
-	
+		server.send("7?;>"); // get constants
+		server.send("9?;>"); // get factories
 	}
+
 	var timer:Float = 0;
 	var currentEntityId:String;
 	var checkLocalFiles:Bool;
-	public function update():Void 
-	{
-	
-		
-		if (Scheduler.realTime() - timer< 0.05)
-		{
-			
+
+	public function update():Void {
+		if (Scheduler.realTime() - timer < 0.05) {
 			return;
-		}else{
-	
-		timer = Scheduler.realTime();
-		server.send("1?*;>");
-		server.send("2?*" + currentEntityId + ";>");
-		server.send("14?*" + currentEntityId + ";>");
-		server.send("15?*;>");
+		} else {
+			timer = Scheduler.realTime();
+			server.send("1?*;>");
+			server.send("2?*" + currentEntityId + ";>");
+			server.send("14?*" + currentEntityId + ";>");
+			server.send("15?*;>");
 		}
-		
-		
+
 		server.update();
 		var ignore1:Bool = false;
 		var ignore2:Bool = false;
-		
-		while (server.messagesToRead() > 0)
-		{
+
+		while (server.messagesToRead() > 0) {
 			var parts:Array<String> = server.popMessage().split("?*");
 			var messageId:Int = Std.parseInt(parts[0]);
-			if (messageId == 1 &&!ignore1)
-			{
+			if (messageId == 1 && !ignore1) {
 				ignore1 = true;
 				entities.updateEntities(createEntities(parts[1]));
-			}else
-			if (messageId == 2&&!ignore2)
-			{
+			} else if (messageId == 2 && !ignore2) {
 				ignore2 = true;
-				entities.updateProperties(parts[1],parts[2].split(";;"));
-			}else 
-			if(messageId==5 ){
-			//	dynamicUpdater.updateMeta(parts[1],parts[2].split(";;"));
-			}else 
-			if (messageId == 7 ) {
-				
-			//	dynamicUpdater.updateConstants(createConstants(parts[1]));
-			}else
-			if (messageId == 9)
-			{
+				entities.updateProperties(parts[1], parts[2].split(";;"));
+			} else if (messageId == 5) {
+				//	dynamicUpdater.updateMeta(parts[1],parts[2].split(";;"));
+			} else if (messageId == 7) {
+				//	dynamicUpdater.updateConstants(createConstants(parts[1]));
+			} else if (messageId == 9) {
 				var factories:Array<Entity> = createEntities(parts[1]);
-			//	dynamicUpdater.updateFactories(factories);
-				if (checkLocalFiles)
-				{
+				//	dynamicUpdater.updateFactories(factories);
+				if (checkLocalFiles) {
 					checkLocalFiles = false;
-					for (entity in factories) 
-					{
-						if (RWData.exist(entity.id))
-						{
-							server.send("13?*" + entity.id + ";;"+ RWData.read(entity.id));
+					for (entity in factories) {
+						if (RWData.exist(entity.id)) {
+							server.send("13?*" + entity.id + ";;" + RWData.read(entity.id));
 						}
 					}
 				}
-			}
-			else
-			if (messageId == 10)
-			{
+			} else if (messageId == 10) {
 				ignore2 = true;
-			//	dynamicUpdater.updateFactoryProperties(parts[1],parts[2].split(";;"));
-			}
-			else
-			if (messageId == 12)
-			{
+				//	dynamicUpdater.updateFactoryProperties(parts[1],parts[2].split(";;"));
+			} else if (messageId == 12) {
 				ignore2 = true;
-				createFile(parts[1],parts[2]);
-			}else
-			if (messageId == 13) {
+				createFile(parts[1], parts[2]);
+			} else if (messageId == 13) {
 				entities.addMessages(parts[1], parts[2]);
-			}else
-			if (messageId == 14) {
+			} else if (messageId == 14) {
 				exposeObjects.set(parts[1]);
 			}
 		}
-		
 	}
-	
-	function createFile(name:String, data:String) 
-	{
+
+	function createFile(name:String, data:String) {
 		RWData.createFile(name, data);
 	}
+
 	public function saveFactory() {
-		
 		server.send("12?*" + currentEntityId + ";>");
-		
 	}
+
 	private function createEntities(message:String):Array<Entity> {
-		
 		var entities:Array<Entity> = new Array();
-		if (message == null) return entities;
+		if (message == null)
+			return entities;
 		var entitiesRaw:Array<String> = message.split("*");
-		for (entityRaw in entitiesRaw) 
-		{
+		for (entityRaw in entitiesRaw) {
 			var parts:Array<String> = entityRaw.split("?");
 			var entity:Entity = new Entity();
 			entity.text = parts[0];
@@ -153,18 +117,17 @@ class Logic
 		}
 		return entities;
 	}
+
 	private function createConstants(message:String):Array<ConstantClass> {
 		var constants:Array<ConstantClass> = new Array();
 		var constantsRaw:Array<String> = message.split(";;");
-		constantsRaw.pop();//empty
-		for (constantClassRaw in constantsRaw) 
-		{
+		constantsRaw.pop(); // empty
+		for (constantClassRaw in constantsRaw) {
 			var parts:Array<String> = constantClassRaw.split("?");
 			var constantClass:ConstantClass = new ConstantClass();
 			constantClass.name = parts.shift();
-			parts.pop();//empty
-			for (constantRaw in parts) 
-			{
+			parts.pop(); // empty
+			for (constantRaw in parts) {
 				var parts:Array<String> = constantRaw.split(",");
 				constantClass.addVariable(parts[0], parts[1], parts[2]);
 			}
@@ -172,67 +135,48 @@ class Logic
 		}
 		return constants;
 	}
-	public function changeEntity(aEntity:Entity)
-	{
+
+	public function changeEntity(aEntity:Entity) {
 		currentEntityId = aEntity.id;
 		server.send("2?*" + currentEntityId + ";>");
 		server.send("5?*" + currentEntityId + ";>");
 		timer = Scheduler.realTime();
-		
 	}
-	
-	public function pauesApp():Void
-	{
+
+	public function pauesApp():Void {
 		server.send("3?*pause;>");
-		
 	}
-	public function resumeApp():Void
-	{
-		
+
+	public function resumeApp():Void {
 		server.send("3?*resume;>");
-		
 	}
-	public function stepApp():Void
-	{
-		
+
+	public function stepApp():Void {
 		server.send("3?*step;>");
-		
 	}
-	public function updateValue(aIdProperty:Int,aValueIndex:Int,aValue:String):Void
-	{
-		
-		server.send("4?*"+currentEntityId+"?*"+aIdProperty+"?*"+aValueIndex+"?*"+aValue+";>");
-		
+
+	public function updateValue(aIdProperty:Int, aValueIndex:Int, aValue:String):Void {
+		server.send("4?*" + currentEntityId + "?*" + aIdProperty + "?*" + aValueIndex + "?*" + aValue + ";>");
 	}
-	public function changeFactory(aEntity:Entity)
-	{
-		
+
+	public function changeFactory(aEntity:Entity) {
 		currentEntityId = aEntity.id;
 		server.send("10?*" + currentEntityId + ";>");
-		
 	}
-	public function updateFactoryValue(aIdProperty:Int,aValueIndex:Int,aValue:String):Void
-	{
-		
-		server.send("11?*"+currentEntityId+"?*"+aIdProperty+"?*"+aValueIndex+"?*"+aValue+";>");
-		
+
+	public function updateFactoryValue(aIdProperty:Int, aValueIndex:Int, aValue:String):Void {
+		server.send("11?*" + currentEntityId + "?*" + aIdProperty + "?*" + aValueIndex + "?*" + aValue + ";>");
 	}
-	
-	public function activateMetaData(message:String) 
-	{
-		
-		server.send("6?*"+currentEntityId+"?*"+message+";>");
-		
+
+	public function activateMetaData(message:String) {
+		server.send("6?*" + currentEntityId + "?*" + message + ";>");
 	}
-	
-	public function updateConstant(constantClass:String, constant:String, value:String) 
-	{
-		
-		server.send("8?*"+constantClass+"?*"+constant+"?*"+value+";>");
-		
+
+	public function updateConstant(constantClass:String, constant:String, value:String) {
+		server.send("8?*" + constantClass + "?*" + constant + "?*" + value + ";>");
 	}
-	public function updateExpose(aId:Int, aValue:String)
-	{
-		server.send("16?*"+aId+"?*"+aValue+";>");
+
+	public function updateExpose(aId:Int, aValue:String) {
+		server.send("16?*" + aId + "?*" + aValue + ";>");
 	}
 }

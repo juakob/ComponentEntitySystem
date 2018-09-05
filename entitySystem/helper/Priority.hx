@@ -4,8 +4,7 @@ package entitySystem.helper;
  * ...
  * @author Joaquin
  */
-class Priority
-{
+class Priority {
 	public inline static var Last = 0;
 	public inline static var VisualUpdate = 100;
 	public inline static var PosMoveStuff = 450;

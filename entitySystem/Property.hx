@@ -4,10 +4,8 @@ package entitySystem;
  * ...
  * @author Joaquin
  */
-
 @:autoBuild(entitySystem.macros.ComponentMacro.build())
-interface Property 
-{
+interface Property {
 	var nextProperty:Property;
 	var versionId:Int;
 	function id():Int;

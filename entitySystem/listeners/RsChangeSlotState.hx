@@ -9,19 +9,15 @@ import entitySystem.properties.PrStateManager;
  * ...
  * @author Joaquin
  */
-class RsChangeSlotState extends Listener
-{
-
-	override public function onEvent(aMessage:Message):MessageResult 
-	{
+class RsChangeSlotState extends Listener {
+	override public function onEvent(aMessage:Message):MessageResult {
 		var state:PrStateManager = cast aMessage.to.get(PrStateManager.ID);
 		var counter:Int = 0;
-		while (counter < aMessage.data.length)
-		{
+		while (counter < aMessage.data.length) {
 			state.change(aMessage.data[counter], aMessage.data[counter + 1], aMessage.to);
 			counter += 2;
 		}
-		
+
 		return SUCCESS;
 	}
 }

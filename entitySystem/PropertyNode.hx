@@ -4,14 +4,10 @@ package entitySystem;
  * ...
  * @author Joaquin
  */
-class PropertyNode
-{
+class PropertyNode {
 	public var nextNode:PropertyNode;
-	public var NodeVersion:Int=0;
+	public var NodeVersion:Int = 0;
 	public var owner:Entity;
-	public function new() 
-	{
-		
-	}
-	
+
+	public function new() {}
 }

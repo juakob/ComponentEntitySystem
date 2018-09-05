@@ -1,24 +1,21 @@
 package entitySystem;
+
 import entitySystem.SystemManager.ES;
 
 /**
  * ...
  * @author Joaquin
  */
-class EntityPool
-{
+class EntityPool {
 	var mPool:Array<Entity>;
-	public function new() 
-	{
+
+	public function new() {
 		mPool = new Array();
 	}
-	
-	public function recycle():Entity
-	{
-		for (entity in mPool)
-		{
-			if (!entity.Alive)
-			{
+
+	public function recycle():Entity {
+		for (entity in mPool) {
+			if (!entity.Alive) {
 				entity.Alive = true;
 				#if expose
 				ES.i.addEntityToList(entity);
@@ -31,8 +28,8 @@ class EntityPool
 		mPool.push(entity);
 		return entity;
 	}
-	public function currentSize():Int
-	{
+
+	public function currentSize():Int {
 		return mPool.length;
 	}
 }

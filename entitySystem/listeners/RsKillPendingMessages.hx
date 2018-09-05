@@ -9,13 +9,9 @@ import entitySystem.SystemManager.ES;
  * ...
  * @author Joaquin
  */
-class RsKillPendingMessages extends Listener
-{
-
-	override public function onEvent(aMessage:Message):MessageResult 
-	{
+class RsKillPendingMessages extends Listener {
+	override public function onEvent(aMessage:Message):MessageResult {
 		ES.i.killPendingMessages(aMessage.to);
 		return SUCCESS;
 	}
-	
 }

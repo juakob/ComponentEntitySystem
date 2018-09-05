@@ -3,10 +3,6 @@ package entitySystem;
 /**
  * @author Joaquin
  */
-
-
-
-interface ISystem extends IListener
-{
-  function update():Void;
+interface ISystem extends IListener {
+	function update():Void;
 }

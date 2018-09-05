@@ -9,30 +9,23 @@ import entitySystem.SystemManager.ES;
  * ...
  * @author Joaquin
  */
-class RsSendMessage extends Listener
-{
-
-	override public function onEvent(aMessage:Message):MessageResult 
-	{
+class RsSendMessage extends Listener {
+	override public function onEvent(aMessage:Message):MessageResult {
 		var messages:Array<Message> = cast aMessage.data;
-		for (message in messages)
-		{
+		for (message in messages) {
 			var messageCopy:Message;
-			if (message.delay != 0)
-			{
-			 messageCopy = message.clone();
-			}else {
-			 messageCopy = message;	
+			if (message.delay != 0) {
+				messageCopy = message.clone();
+			} else {
+				messageCopy = message;
 			}
 			messageCopy.to = aMessage.to;
 			messageCopy.from = aMessage.from;
-			if (message.data == null)
-			{
+			if (message.data == null) {
 				messageCopy.data = aMessage.data;
 			}
 			ES.i.dispatch(messageCopy);
 		}
 		return SUCCESS;
 	}
-	
 }

@@ -1,7 +1,6 @@
 package net;
+
 import inspector.net.IServer;
-
-
 #if js
 import js.html.WebSocket;
 #elseif flash
@@ -16,12 +15,12 @@ import flash.utils.ByteArray;
 import sys.net.Socket;
 import sys.net.Host;
 #end
+
 /**
  * ...
  * @author Joaquin
  */
-class FClient implements IServer
-{
+class FClient implements IServer {
 	#if js
 	var socket:WebSocket;
 	var open:Bool;
@@ -30,33 +29,32 @@ class FClient implements IServer
 	#else
 	var socket:Socket;
 	#end
-	
 	var messages:Array<String>;
 
-	public function new() 
-	{
+	public function new() {
 		#if js
 		socket = new WebSocket('ws://localhost:5001');
-		socket.onopen = function(e) { open = true; };
-		socket.onerror = function(e) { trace(e.code) ; };
+		socket.onopen = function(e) {
+			open = true;
+		};
+		socket.onerror = function(e) {
+			trace(e.code);
+		};
 		socket.onmessage = onMessage;
-		
 		#elseif flash
 		try {
-		  Security.allowDomain("127.0.0.1");
-		  Security.loadPolicyFile("xmlsocket://127.0.0.1:5001");
-		} catch (e:IOError) {
-			
-		}
-		socket = new Socket();	
-		
-		 socket.addEventListener(IOErrorEvent.IO_ERROR, ioErrorHandler);
+			Security.allowDomain("127.0.0.1");
+			Security.loadPolicyFile("xmlsocket://127.0.0.1:5001");
+		} catch (e:IOError) {}
+		socket = new Socket();
+
+		socket.addEventListener(IOErrorEvent.IO_ERROR, ioErrorHandler);
 		socket.addEventListener(SecurityErrorEvent.SECURITY_ERROR, securityErrorHandler);
 		try {
 			socket.connect("127.0.0.1", 5001);
-		} catch(ioError:IOError) {
-			//  handle synchronous errors here  
-		} catch(secError:SecurityError) {
+		} catch (ioError:IOError) {
+			//  handle synchronous errors here
+		} catch (secError:SecurityError) {
 			// and here
 		}
 		#else
@@ -66,7 +64,7 @@ class FClient implements IServer
 		#end
 		messages = new Array();
 	}
-	
+
 	#if flash
 	private function ioErrorHandler(event:IOErrorEvent):Void {
 		trace("ioErrorHandler: " + event);
@@ -76,89 +74,76 @@ class FClient implements IServer
 		trace("securityErrorHandler: " + event);
 	}
 	#end
-	
-	var stream:String="";
-	public function update():Void
-	{
+
+	var stream:String = "";
+
+	public function update():Void {
 		#if js
 		#elseif flash
-		if (socket.connected && socket.bytesAvailable != 0)
-		{	
+		if (socket.connected && socket.bytesAvailable != 0) {
 			addToStream(socket.readUTFBytes(socket.bytesAvailable));
 		}
 		#else
 		try {
-			while (true)
-			{
+			while (true) {
 				addToStream(socket.input.readLine());
 			}
-		}catch (e:Dynamic)
-		{
-			
-		}
+		} catch (e:Dynamic) {}
 		#end
 	}
-	function addToStream(aString:String)
-	{
-		stream +=aString;
+
+	function addToStream(aString:String) {
+		stream += aString;
 		var parts:Array<String> = stream.split(";>");
-		while (parts.length > 1)
-		{
+		while (parts.length > 1) {
 			messages.push(parts.shift());
 		}
 		stream = parts[0];
 	}
+
 	#if js
 	function onMessage(aEvent) {
 		addToStream(aEvent.data);
 	}
 	#end
-	public function send(aMessage:String):Void
-	{
+
+	public function send(aMessage:String):Void {
 		#if js
-		if(open){
+		if (open) {
 			socket.send(aMessage);
 		}
 		#elseif flash
-		if (socket.connected)
-		{
-			socket.writeUTFBytes(aMessage+"\n");
+		if (socket.connected) {
+			socket.writeUTFBytes(aMessage + "\n");
 			socket.flush();
 		}
 		#else
-		socket.output.writeString(aMessage+"\n");
+		socket.output.writeString(aMessage + "\n");
 		#end
 	}
-	
-	public inline function popMessage():String
-	{
+
+	public inline function popMessage():String {
 		return messages.pop();
 	}
-	public inline function messagesToRead():Int
-	{
+
+	public inline function messagesToRead():Int {
 		return messages.length;
 	}
-	
-	public function close() 
-	{
+
+	public function close() {
 		#if js
-			socket.close();
+		socket.close();
 		#elseif flash
-		if (socket.connected)
-		{
+		if (socket.connected) {
 			socket.close();
 		}
 		#else
 		socket.close();
 		#end
 	}
-	
+
 	/* INTERFACE inspector.net.IServer */
-	
-	public function onConnection(callBack:Void->Void):Void 
-	{
+	public function onConnection(callBack:Void->Void):Void {
 		callBack();
 	}
-	
-
 }

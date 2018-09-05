@@ -8,11 +8,8 @@ import entitySystem.MessageResult;
  * ...
  * @author Joaquin
  */
-class RsCallFunction extends Listener
-{
-
-	override public function onEvent(aMessage:Message):MessageResult 
-	{
+class RsCallFunction extends Listener {
+	override public function onEvent(aMessage:Message):MessageResult {
 		aMessage.data();
 		return SUCCESS;
 	}
