@@ -12,4 +12,5 @@ interface IListener {
 	function remove(aEntity:Entity):Void;
 	function onEvent(aMessage:Message):MessageResult;
 	function priority():Int;
+	function destroy():Void;
 }

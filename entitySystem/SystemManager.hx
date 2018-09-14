@@ -348,12 +348,18 @@ class SystemManager {
 
 	public function destroy():Void {
 		mSystemsDictionary = null;
+		for(listener in mListeners){
+			listener.destroy();
+		}
 		mListeners = null;
 		#if expose
 		mEntities = null;
 		Expose.i.destroy();
 		#end
-		mSystems.splice(0, mSystems.length);
+		while(mSystems.length>0)
+		{
+			mSystems.pop().destroy();
+		}
 		mSystems = null;
 		mPropertiesPool = null;
 		mBroadcast = null;

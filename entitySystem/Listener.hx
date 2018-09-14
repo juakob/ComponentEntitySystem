@@ -43,4 +43,7 @@ class Listener implements IListener {
 	public function priority():Int {
 		return 0;
 	}
+	public function destroy():Void {
+
+	}
 }

@@ -91,4 +91,7 @@ class EntitySystem<T> implements ISystem {
 	public function priority():Int {
 		return 1;
 	}
+	public function destroy(){
+		
+	}
 }
