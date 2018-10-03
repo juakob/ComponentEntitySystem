@@ -77,6 +77,8 @@ class Expose {
 				o.$attribute = Std.parseFloat(value);
 			});
 		};
+		#else
+			return macro { };
 		#end
 	}
 
@@ -89,6 +91,8 @@ class Expose {
 				o.$attribute = value;
 			});
 		};
+		#else
+			return macro { };
 		#end
 	}
 
@@ -101,6 +105,8 @@ class Expose {
 				o.$attribute = Std.parseInt(value);
 			});
 		};
+		#else
+			return macro { };
 		#end
 	}
 
@@ -113,6 +119,8 @@ class Expose {
 				o.$attribute = (value == "true");
 			});
 		};
+		#else
+			return macro { };
 		#end
 	}
 
