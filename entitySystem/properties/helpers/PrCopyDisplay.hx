@@ -1,6 +1,7 @@
 package entitySystem.properties.helpers;
 
 import com.gEngine.GEngine;
+import com.gEngine.display.AnimationSprite;
 import entitySystem.Property;
 import myComponents.properties.PrDisplay;
 

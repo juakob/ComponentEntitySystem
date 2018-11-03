@@ -38,7 +38,7 @@ class ComponentMacro {
 					// setValue is implemented
 					setValueAlreadyDefinded = true;
 				} else if (i.name == "getValue") {
-					// setValue is implemented
+					// getValue is implemented
 					getValueAlreadyDefinded = true;
 				}
 			}
@@ -93,8 +93,7 @@ class ComponentMacro {
 			}), {expr: EConst(CIdent("null")), pos: pos}),
 			pos: pos
 		});
-		if (!idAlreadyDefinded) {
-			fields.push({
+		fields.push({
 				name: "ID",
 				doc: null,
 				meta: [],
@@ -102,6 +101,9 @@ class ComponentMacro {
 				kind: FVar(tint, {expr: EConst(CInt(Std.string(idCount))), pos: pos}),
 				pos: pos
 			});
+			
+		if (!idAlreadyDefinded) {
+			
 			fields.push({
 				name: "id",
 				doc: null,
@@ -115,9 +117,9 @@ class ComponentMacro {
 				}),
 				pos: pos
 			});
-			idCount++;
+			
 		}
-
+		idCount++;
 		// clone function
 
 		if (!cloneAlreadyDefinded) {
@@ -390,7 +392,7 @@ class ComponentMacro {
 		});
 
 		// get value function
-		if (true) {
+		if (!getValueAlreadyDefinded) {
 			var code:String;
 			var exp:Array<Expr> = new Array();
 

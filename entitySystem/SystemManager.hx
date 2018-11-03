@@ -52,7 +52,9 @@ class SystemManager {
 	private function new(saveImp:ISave) {
 		mSystemsClass = cast CompileTime.getAllClasses(EntitySystem);
 		mListenerClass = cast CompileTime.getAllClasses(Listener);
+		#if expose
 		client = LocalClient.i; // new FClient();
+		#end
 		storage = saveImp;
 		if (storage.canLoad()) {
 			saveData = storage.load();
@@ -612,11 +614,6 @@ class SystemManager {
 		var traceInfo:Bool = false;
 		while (counter < totalCounter) {
 			var slotChange = delaySlotChanges[counter];
-			if (slotChange.state == "groundFall" || slotChange.state == "damage")
-				traceInfo = true;
-			if (traceInfo) {
-				trace("change to " + counter + "/" + slotChangeCounter + " " + slotChange.entity.id + " " + slotChange.slot + " " + slotChange.state);
-			}
 			slotChange.stateManager.changeDelay(slotChange.slot, slotChange.state, slotChange.entity);
 			++counter;
 			slotChange.reset();

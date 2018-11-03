@@ -9,15 +9,15 @@
  *
 ****/
 class CompileTimeClassList {
-	static var lists:Map<String, List<Class<Dynamic>>> = null;
+	static var lists:Map<String, Array<Class<Dynamic>>> = null;
 
-	public static function get(id:String):List<Class<Dynamic>> {
+	public static function get(id:String):Array<Class<Dynamic>> {
 		if (lists == null)
 			initialise();
 		return lists.get(id);
 	}
 
-	public static inline function getTyped<T>(id:String, type:Class<T>):List<Class<T>> {
+	public static inline function getTyped<T>(id:String, type:Class<T>):Array<Class<T>> {
 		return cast get(id);
 	}
 
@@ -28,7 +28,7 @@ class CompileTimeClassList {
 			for (item in m.classLists) {
 				var array:Array<String> = cast item;
 				var listID = array[0];
-				var list = new List();
+				var list = new Array();
 				for (typeName in array[1].split(',')) {
 					var type = Type.resolveClass(typeName);
 					if (type != null)

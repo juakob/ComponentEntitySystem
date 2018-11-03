@@ -10,6 +10,7 @@ import entitySystem.MessageResult;
  */
 class RsChildrenListen extends Listener {
 	override public function onEvent(aMessage:Message):MessageResult {
+		
 		aMessage.to.sendMessageToChild(aMessage);
 		return SUCCESS;
 	}
