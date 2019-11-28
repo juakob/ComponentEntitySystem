@@ -70,7 +70,7 @@ class EntitySystem<T> implements ISystem {
 		throw "Override this method";
 	}
 
-	public function handleEvent(message:Message, brodcast:Bool = false):MessageResult {
+	/*public function handleEvent(message:Message, brodcast:Bool = false):MessageResult {
 		if (brodcast) {
 			for (e in mEntities) {
 				message.to = e;
@@ -82,7 +82,7 @@ class EntitySystem<T> implements ISystem {
 			return onEvent(message);
 		}
 		return SUCCESS;
-	}
+	}*/
 
 	public function onEvent(message:Message):MessageResult {
 		return MessageResult.NOT_IMPLEMENTED;

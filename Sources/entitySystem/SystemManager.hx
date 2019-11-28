@@ -10,11 +10,12 @@ import entitySystem.helper.DelaySlotChange;
 #end
 import entitySystem.storage.ISave;
 import entitySystem.storage.SaveData;
+#if expose
 import inspector.net.IServer;
 import inspector.net.Local;
 import inspector.net.LocalClient;
 import net.FClient;
-
+#end
 /**
  * ...
  * @author Joaquin
@@ -30,8 +31,8 @@ class SystemManager {
 	private var mSystems:Array<ISystem>;
 	private var mPropertiesPool:Map<Int, PropertyPool>;
 	private var mBroadcast:Map<MessageID, Array<Entity>>;
-	private var mSystemsClass:Iterable<Class<ISystem>>;
-	private var mListenerClass:Iterable<Class<IListener>>;
+	private var mSystemsClass:haxe.ds.List<Class<ISystem>>;
+	private var mListenerClass:haxe.ds.List<Class<IListener>>;
 	var storage:ISave;
 	var saveData:SaveData;
 
@@ -50,8 +51,8 @@ class SystemManager {
 	}
 
 	private function new(saveImp:ISave) {
-		mSystemsClass = cast CompileTime.getAllClasses(EntitySystem);
-		mListenerClass = cast CompileTime.getAllClasses(Listener);
+		mSystemsClass =  CompileTime.getAllClasses(ISystem);
+		mListenerClass =  CompileTime.getAllClasses(IListener);
 		#if expose
 		client = LocalClient.i; // new FClient();
 		#end
@@ -76,15 +77,12 @@ class SystemManager {
 		#if expose
 		proccesNetMessages();
 		#end
-		if (pause && !step) {
-			aDt = 0;
-			TimeManager.setDelta(0, 0); // temporal
-		}
+		processMessages(aDt);
 		for (sys in mSystems) {
 			sys.update();
 		}
 
-		processMessages(aDt);
+		
 		#if !macro
 		processDelaySlotChanges();
 		#end
@@ -92,6 +90,7 @@ class SystemManager {
 	}
 
 	public function addSystem(id:Int):Void {
+		if(systemExists(id)) return;
 		for (sys in mSystemsClass) {
 			if (id == (cast sys).ID) {
 				var system = Type.createInstance(sys, []);
@@ -109,12 +108,15 @@ class SystemManager {
 			}
 		}
 	}
-
+	public function systemExists(id:Int):Bool {
+		return mSystemsDictionary.exists(id);
+	}
 	public function add(sys:ISystem):Void {
-		if (!mSystemsDictionary.exists(sys.id())) {
-			mSystems.push(sys);
-			mSystemsDictionary.set(sys.id(), sys);
-		}
+		#if debug
+		if(systemExists(sys.id())) throw "system added twice call systemExist()";
+		#end
+		mSystems.push(sys);
+		mSystemsDictionary.set(sys.id(), sys);
 	}
 
 	public function add2(sys:ISystem, id:Int):Void {
@@ -134,6 +136,17 @@ class SystemManager {
 	 */
 	public function addGroup(sys:ISystem):Void {
 		mSystemsDictionary.set(sys.id(), sys);
+	}
+	public function addGroupBy(id):Void {
+		if(systemExists(id)) return;
+		for (sys in mSystemsClass) {
+			if (id == (cast sys).ID) {
+				var system = Type.createInstance(sys, []);
+				if (system == null)
+					throw "cant create " + sys;
+				addGroup(system);
+			}
+		}
 	}
 
 	public function addGroup2(sys:ISystem, id:Int):Void {
@@ -198,9 +211,9 @@ class SystemManager {
 			}
 		}
 		#if debug
-		else {
-			trace("warning : entityId " + aEntity.id + " was not added to listener " + aMessage);
-		}
+	//	else {
+	//		trace("warning : entityId " + aEntity.id + " was not added to listener " + aMessage);
+	//	}
 		#end
 	}
 
@@ -392,9 +405,9 @@ class SystemManager {
 
 	public function getFactories():String {
 		var encode:String = "";
-		for (factory in factories) {
+		/*for (factory in factories) {
 			encode += factory.name + "?" + factory.name + "*";
-		}
+		}*/
 		return encode;
 	}
 
@@ -415,11 +428,11 @@ class SystemManager {
 	}
 
 	public function getFactory(aId:String):EntityState {
-		for (factory in factories) {
+	/*	for (factory in factories) {
 			if (factory.name == aId) {
 				return factory;
 			}
-		}
+		}*/
 		throw "Factory " + aId + " not found";
 	}
 
@@ -454,12 +467,12 @@ class SystemManager {
 				case 3: // commands
 					if (!ignore3) {
 						ignore3 = true;
-						if (parts[1] == "pause") {
+						if (parts[1].indexOf("pause")>-1) {
 							pause = true;
-						} else if (parts[1] == "resume") {
+						} else if (parts[1].indexOf("resume")>-1) {
 							pause = false;
 							step = false;
-						} else if (parts[1] == "step") {
+						} else if (parts[1].indexOf("step")>-1) {
 							pause = true;
 							step = true;
 						}
@@ -507,7 +520,7 @@ class SystemManager {
 						var factory = getFactory(factoryName);
 						propertiesRaw.pop();
 						applyToFactory(factory, propertiesRaw);
-						saveData.saveFactory(factory.name, parts[1]);
+//						saveData.saveFactory(factory.name, parts[1]);
 						storage.save(saveData);
 					}
 				case 14: // get messages
@@ -579,13 +592,13 @@ class SystemManager {
 		factories.push(factory);
 		client.send("9?*" + getFactories());
 
-		var data = saveData.getData(factory.name);
+	/*	var data = saveData.getData(factory.name);
 		if (data != null) {
 			var parts:Array<String> = data.split(";;");
 			var factoryName:String = parts.shift();
 			parts.pop();
 			applyToFactory(factory, parts);
-		}
+		}*/
 		#end
 	}
 

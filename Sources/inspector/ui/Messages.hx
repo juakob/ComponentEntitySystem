@@ -16,11 +16,11 @@ class Messages {
 		if (ui.window(handle, 600, 100, 500, 400, true)) {
 			if (ui.panel(handle, "Messages")) {
 				var entity:CurrentEntity = logic.entities.currentEntity;
-				for (x in 0...Std.int(entity.messages.length / 6)) {
-					ui.row([1 / 6, 1 / 6, 1 / 6, 1 / 6, 1 / 6, 1 / 6]);
-					for (i in (x * 6)...((x * 6) + 6)) {
-						ui.text(entity.messages[i]);
-					}
+				for (x in 0...entity.messages.length ) {
+				//	ui.row([1 / 6, 1 / 6, 1 / 6, 1 / 6, 1 / 6, 1 / 6]);
+					//for (i in (x * 6)...((x * 6) + 6)) {
+						ui.text(entity.messages[x]);
+					//}
 				}
 			}
 		}

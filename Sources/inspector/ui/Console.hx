@@ -1,5 +1,5 @@
 package inspector.ui;
-
+#if expose
 import zui.Id;
 import zui.Zui;
 
@@ -30,3 +30,4 @@ class Console {
 		}
 	}
 }
+#end

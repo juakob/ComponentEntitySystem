@@ -1,5 +1,5 @@
 package inspector.customComponents;
-
+#if expose
 import kha.Scheduler;
 import kha.input.KeyCode;
 import zui.Zui;
@@ -54,3 +54,4 @@ class TextInputAdvance {
 		return Math.round(n) / Math.pow(10, prec) + "";
 	}
 }
+#end

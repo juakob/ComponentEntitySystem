@@ -8,6 +8,7 @@ class CurrentEntity {
 	public var id:String = "";
 	public var properties:Array<Property> = new Array();
 	public var messages:Array<String> = new Array();
+	public var duplicate:Array<Int> = new Array();
 
 	public function new() {}
 
@@ -40,6 +41,7 @@ class CurrentEntity {
 	public function reset() {
 		properties.splice(0, properties.length);
 		messages.splice(0, messages.length);
+		duplicate.splice(0,duplicate.length);
 	}
 
 	public function deleteUnUpdatedProperties() {
@@ -59,6 +61,15 @@ class CurrentEntity {
 		if (aMessages == null || aMessages == "")
 			return;
 		aMessages = aMessages.substr(0, aMessages.length - 2);
-		messages = messages.concat(aMessages.split(";;"));
+		var newMessages = aMessages.split(";;");
+		for(message in newMessages){
+			if(messages.length==0 || message !=messages[0]){
+				messages.insert(0,message);
+				duplicate.insert(0,0);
+			}else{
+				++duplicate[0];
+			}
+		}
+		 
 	}
 }

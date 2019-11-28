@@ -1,5 +1,5 @@
 package inspector.ui;
-
+#if expose
 import inspector.logicDomain.Entity;
 import zui.Id;
 import zui.Zui;
@@ -13,10 +13,11 @@ class Entities {
 		if (ui.window(Id.handle(), 400, 10, 100, 120, true)) {
 			var entites:Array<Entity> = logic.entities.allEntities;
 			for (entity in entites) {
-				if (ui.button(entity.text)) {
+				if (ui.button(entity.text+"-"+entity.id)) {
 					logic.changeEntity(entity);
 				}
 			}
 		}
 	}
 }
+#end

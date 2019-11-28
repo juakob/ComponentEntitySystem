@@ -1,5 +1,6 @@
 package inspector;
-
+import entitySystem.listeners.RsCallFunctionPassMessage;
+#if expose
 import com.gEngine.GEngine;
 import inspector.ui.Console;
 import inspector.ui.Entities;
@@ -23,6 +24,7 @@ class Inspector {
 		logic = new Logic();
 
 		ui = new Zui({font: Assets.fonts.mainfont, scaleFactor: GEngine.i.width / 1280});
+		
 	}
 
 	public function render(framebuffer:Canvas):Void {
@@ -49,3 +51,4 @@ class Inspector {
 		logic.update();
 	}
 }
+#end

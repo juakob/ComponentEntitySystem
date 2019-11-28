@@ -93,7 +93,10 @@ class ComponentMacro {
 			}), {expr: EConst(CIdent("null")), pos: pos}),
 			pos: pos
 		});
-		fields.push({
+		
+			
+		if (!idAlreadyDefinded) {
+			fields.push({
 				name: "ID",
 				doc: null,
 				meta: [],
@@ -101,9 +104,6 @@ class ComponentMacro {
 				kind: FVar(tint, {expr: EConst(CInt(Std.string(idCount))), pos: pos}),
 				pos: pos
 			});
-			
-		if (!idAlreadyDefinded) {
-			
 			fields.push({
 				name: "id",
 				doc: null,

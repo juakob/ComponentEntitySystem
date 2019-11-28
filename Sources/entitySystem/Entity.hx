@@ -9,6 +9,7 @@ import entitySystem.debug.MessageProxy;
  * @author Joaquin
  */
 class Entity {
+
 	#if expose
 	public var messages:Array<MessageProxy> = new Array();
 	public var messageBufferSize:Int = 5;

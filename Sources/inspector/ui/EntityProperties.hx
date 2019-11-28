@@ -1,5 +1,5 @@
 package inspector.ui;
-
+#if expose
 import inspector.customComponents.TextInputAdvance;
 import inspector.logicDomain.CurrentEntity;
 import zui.Id;
@@ -36,3 +36,4 @@ class EntityProperties {
 		}
 	}
 }
+#end

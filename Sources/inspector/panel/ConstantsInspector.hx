@@ -1,6 +1,6 @@
 package panel;
 
-import haxe.ui.containers.Absolute;
+import haxe.ui.containers.;
 import haxe.ui.containers.Box;
 // import haxe.ui.containers.HSplitter;
 import haxe.ui.containers.ScrollView;

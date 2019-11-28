@@ -10,9 +10,9 @@ import entitySystem.SystemManager.ES;
  * @author Joaquin
  */
 class EntityState {
-	public var name:String;
 
 	private var mSystems:Array<SystemAux>;
+	private var mGroups:Array<SystemAux>;
 	private var mRequiredSystems:Array<Int>;
 	private var mRequiredListeners:Array<Int>;
 	private var mPropertiesToAdd:Array<PropertyAux>;
@@ -30,6 +30,7 @@ class EntityState {
 
 	public function new() {
 		mSystems = new Array();
+		mGroups = new Array();
 		mRequiredSystems = new Array();
 		mRequiredListeners = new Array();
 		mPropertiesToAdd = new Array();
@@ -41,14 +42,22 @@ class EntityState {
 		mStates = new Array();
 	}
 
-	public function addSystem(aSystem:Int, aSafeAdd:Bool = false):Void {
-		mSystems.push(new SystemAux(aSystem, aSafeAdd, true));
+	public function addSystem(aSystem:Int):Void {
+		mSystems.push(new SystemAux(aSystem, true));
+	}
+	public function addGroup(aGroup:Int):Void {
+		mGroups.push(new SystemAux(aGroup, true));
 	}
 
 	public function init():Void {
 		for (sys in mSystems) {
 			if (sys.add) {
 				ES.i.addSystem(sys.id);
+			}
+		}
+		for(group in mGroups){
+			if(group.add){
+				ES.i.addGroupBy(group.id);
 			}
 		}
 		for (sysId in mRequiredSystems) {
@@ -66,7 +75,10 @@ class EntityState {
 	}
 
 	public function removeSystem(aSystem:Int):Void {
-		mSystems.push(new SystemAux(aSystem, false, false));
+		mSystems.push(new SystemAux(aSystem, false));
+	}
+	public function removeGroup(aGroup:Int):Void {
+		mGroups.push(new SystemAux(aGroup, false));
 	}
 
 	public function addListeneing(aMessage:MessageID, aSystem:Int, aOverrideData:Dynamic = null, aBroadcast:Bool = false):Void {
@@ -106,7 +118,6 @@ class EntityState {
 	}
 
 	public function applyState(aEntity:Entity):Void {
-		aEntity.name = name;
 
 		for (message in mMessages) {
 			message.to = aEntity;
@@ -132,6 +143,13 @@ class EntityState {
 				systemManager.addEntity(aEntity, system.id);
 			} else {
 				systemManager.removeEntity(aEntity, system.id);
+			}
+		}
+		for (group in mGroups) {
+			if (group.add) {
+				systemManager.addEntity(aEntity, group.id);
+			} else {
+				systemManager.removeEntity(aEntity, group.id);
 			}
 		}
 		for (listener in mListener) {
@@ -171,6 +189,14 @@ class EntityState {
 			}
 		}
 
+		for (group in mGroups) {
+			if (!group.add) {
+				systemManager.addEntity(aEntity, group.id);
+			} else {
+				systemManager.removeEntity(aEntity, group.id);
+			}
+		}
+
 		for (listener in mListener) {
 			if (!listener.add) {
 				systemManager.subscribeEntity(aEntity, listener.message, listener.id, listener.overrideData, listener.broadcast);
@@ -199,12 +225,20 @@ class EntityState {
 		return newState;
 	}
 
-	public function addSystemTo(aChildID:Int, aSystem:Int, aSafeAdd:Bool = false):Void {
-		getChildState(aChildID).addSystem(aSystem, aSafeAdd);
+	public function addSystemTo(aChildID:Int, aSystem:Int):Void {
+		getChildState(aChildID).addSystem(aSystem);
 	}
 
 	public function removeSystemTo(aChildID:Int, aSystem:Int):Void {
 		getChildState(aChildID).removeSystem(aSystem);
+	}
+
+	public function addGroupTo(aChildID:Int, aGroup:Int):Void {
+		getChildState(aChildID).addGroup(aGroup);
+	}
+
+	public function removeGroupTo(aChildID:Int, aGroup:Int):Void {
+		getChildState(aChildID).removeGroup(aGroup);
 	}
 
 	public function addListeneingTo(aChildID:Int, aMessage:MessageID, aSystem:Int, aOverrideData:Dynamic = null, aBroadcast:Bool = false):Void {
@@ -230,9 +264,11 @@ class EntityState {
 	//////////////////////////////////////////
 	public function clone():EntityState {
 		var cl:EntityState = new EntityState();
-		cl.name = name;
 		for (system in mSystems) {
 			cl.mSystems.push(system.clone());
+		}
+		for (group in mGroups) {
+			cl.mGroups.push(group.clone());
 		}
 		for (property in mPropertiesToAdd) {
 			cl.mPropertiesToAdd.push(property.clone());
@@ -338,17 +374,15 @@ class EntityState {
 
 private class SystemAux {
 	public var id:Int;
-	public var safeAdd:Bool;
 	public var add:Bool; // false equals to remove;
 
-	public function new(aId:Int, aSafeAdd:Bool, aAdd:Bool) {
+	public function new(aId:Int, aAdd:Bool) {
 		id = aId;
-		safeAdd = aSafeAdd;
 		add = aAdd;
 	}
 
 	public function clone():SystemAux {
-		return new SystemAux(id, safeAdd, add);
+		return new SystemAux(id,  add);
 	}
 }
 
