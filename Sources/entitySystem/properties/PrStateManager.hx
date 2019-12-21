@@ -37,6 +37,7 @@ class PrStateManager implements Property {
 		for (s in aStates) {
 			s.init();
 		}
+
 		mStates.push(state);
 	}
 

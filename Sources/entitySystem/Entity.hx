@@ -45,6 +45,7 @@ class Entity {
 	public var Alive:Bool;
 	public var InPool:Bool;
 	public var name:String;
+	public var parent:Entity;
 
 	private var mProperties:Map<Int, Property>;
 
@@ -227,6 +228,7 @@ class Entity {
 		}
 		mChild = null;
 		mNext = null;
+		parent=null;
 
 		if (InPool) {
 			Listening = new Map();
@@ -253,6 +255,7 @@ class Entity {
 	}
 
 	public function addChild(aEntity:Entity) {
+		aEntity.parent=this;
 		if (mChild == null) {
 			mChild = aEntity;
 			return;

@@ -7,17 +7,10 @@ import entitySystem.Property;
  * @author Joaquin
  */
 class EntityChild extends Entity {
-	var mParent:Entity;
 
 	public function new(aParent:Entity) {
 		super();
-		mParent = aParent;
-		mParent.addChild(this);
-	}
-
-	public function reParent(aParent:Entity) {
-		mParent = aParent;
-		mParent.addChild(this);
+		aParent.addChild(this);
 	}
 
 	override public function get(aId:Int):Property {
@@ -25,6 +18,6 @@ class EntityChild extends Entity {
 		if (prop != null) {
 			return prop;
 		}
-		return mParent.get(aId);
+		return parent.get(aId);
 	}
 }

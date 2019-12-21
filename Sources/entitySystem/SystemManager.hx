@@ -35,6 +35,10 @@ class SystemManager {
 	private var mListenerClass:haxe.ds.List<Class<IListener>>;
 	var storage:ISave;
 	var saveData:SaveData;
+	var id:Int=-1;
+
+	public static var states:Array<SystemManager> = new Array();
+	static var idCount:Int=0;
 
 	public static var i(get, null):SystemManager;
 
@@ -49,7 +53,39 @@ class SystemManager {
 		i = new SystemManager(new entitySystem.storage.SaveKhaImpl());
 		#end
 	}
-
+	public static function newState():Int {
+		#if !macro
+		i = new SystemManager(new entitySystem.storage.SaveKhaImpl());
+		i.id = idCount++;
+		states.push(i);
+		#end
+		return i.id;
+		
+	}
+	public static function changeState(id:Int) {
+		for(state in states){
+			if(state.id==id){
+				i=state;
+				return;
+			}
+		}
+		throw "state id "+ id +" not found";
+	}
+	public static function destroyState(id:Int) {
+		var toDestroy:SystemManager=null;
+		for(state in states){
+			if(state.id==id){
+				toDestroy=state;
+				break;
+			}
+		}
+		if(toDestroy!=null){
+			states.remove(toDestroy);
+			toDestroy.destroy();
+		}else{
+			throw "state id "+ id +" not found";
+		}
+	}
 	private function new(saveImp:ISave) {
 		mSystemsClass =  CompileTime.getAllClasses(ISystem);
 		mListenerClass =  CompileTime.getAllClasses(IListener);

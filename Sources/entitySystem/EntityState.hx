@@ -71,6 +71,9 @@ class EntityState {
 		for (listenerId in mRequiredListeners) {
 			ES.i.addListenerBy(listenerId);
 		}
+		for(child in mChildren){
+			child.init();
+		}
 		ES.i.sortSystems();
 	}
 
@@ -288,6 +291,10 @@ class EntityState {
 		for (message in mMessages) {
 			cl.mMessages.push(message.clone());
 		}
+		for(child in mChildren){
+			cl.mChildren.push(child.clone());
+		}
+		cl.mChildID=mChildID;
 		cl.onSet = onSet;
 		cl.onRemove = onRemove;
 		return cl;
