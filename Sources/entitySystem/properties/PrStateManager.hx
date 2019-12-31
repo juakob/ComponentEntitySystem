@@ -88,7 +88,13 @@ class PrStateManager implements Property {
 			slot.state.applyState(aEntity);
 		}
 	}
-
+	public function applyInitialStates( aEntity:Entity):Void {
+		for(slot in mSlots){
+			if(slot.state!=null){
+				slot.state.applyState(aEntity);
+			}
+		}
+	}
 	public function applyState(aState:String, aEntity:Entity):Void {
 		getState(aState).applyState(aEntity);
 	}

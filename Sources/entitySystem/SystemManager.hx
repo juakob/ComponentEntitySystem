@@ -359,6 +359,9 @@ class SystemManager {
 		}
 		aMessage.originalData = null;
 	}
+	public function directProcess(listenerId:Int,aMessage:Message) {
+		mListeners.get(listenerId).onEvent(aMessage);
+	}
 
 	var toDelete:Array<Entity> = new Array();
 

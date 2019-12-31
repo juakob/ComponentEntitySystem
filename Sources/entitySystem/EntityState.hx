@@ -1,9 +1,10 @@
 package entitySystem;
 
-import entitySystem.EntityState;
+
+import entitySystem.SystemManager.ES;
 import entitySystem.Message.MessageID;
 import entitySystem.properties.ComplexProperty;
-import entitySystem.SystemManager.ES;
+
 
 /**
  * ...
@@ -169,6 +170,12 @@ class EntityState {
 		for (childState in mChildren) {
 			childState.applyState(aEntity.getChild(childState.mChildID));
 		}
+		#if !macro
+		var prStateManager:entitySystem.properties.PrStateManager=cast get(entitySystem.properties.PrStateManager.ID);
+		if(prStateManager!=null){
+			prStateManager.applyInitialStates(aEntity);
+		}
+		#end
 
 		if (onSet != null) {
 			onSet(aEntity);
@@ -349,6 +356,14 @@ class EntityState {
 		// cl.mListener.push(listener.clone());
 		// }
 	}
+	public function get(aId:Int):Property {
+		for (prop in mPropertiesToAdd) {
+			if (prop.id == aId) {
+				return prop.property;
+			}
+		}
+		return null;
+	}
 
 	#if expose
 	public function serialize():String {
@@ -366,15 +381,6 @@ class EntityState {
 			}
 		}
 		throw "property with name " + aName + " not found";
-	}
-
-	public function get(aId:Int):Property {
-		for (prop in mPropertiesToAdd) {
-			if (prop.id == aId) {
-				return prop.property;
-			}
-		}
-		throw "property with id " + aId + " not found";
 	}
 	#end
 }
