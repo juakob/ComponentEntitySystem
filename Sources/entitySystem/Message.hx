@@ -53,7 +53,7 @@ class Message {
 
 	public static function weak(aEvent:MessageID, aTo:Entity, aFrom:Entity, aData:Dynamic = null, aBroadcast:Bool = false, aDelay:Float = 0):Message {
 		if (index >= i_weak.length) {
-			i_weak.push(new Message(#if false - 1 #else null #end , null, null));
+			i_weak.push(new Message(#if RELEASE - 1 #else null #end , null, null));
 		}
 		var message = i_weak[index];
 		message.event = aEvent;
@@ -74,6 +74,7 @@ class Message {
 		i_weak.splice(0, i_weak.length);
 		index = 0;
 		messageMap = new Map();
+		messageIndex=0;
 	}
 
 	public static var messageMap:Map<String, Int> = new Map();
@@ -102,7 +103,7 @@ class Message {
 		if (Message.messageMap.exists(message)) {
 			return Message.messageMap.get(message);
 		} else {
-			messageIndex++;
+			messageIndex--;//use negative index for dynamic
 			messageMap.set(message, messageIndex);
 			return Message.messageIndex;
 		}

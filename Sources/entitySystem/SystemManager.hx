@@ -162,7 +162,9 @@ class SystemManager {
 
 	public function sortSystems():Void {
 		mSystems.sort(function(a:ISystem, b:ISystem):Int {
-			return a.priority() < b.priority() ? 1 : -1;
+			if(a.priority() < b.priority()) return 1;
+			if(a.priority() > b.priority()) return -1;
+			return 0;
 		});
 	}
 

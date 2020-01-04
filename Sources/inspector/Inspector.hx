@@ -50,5 +50,8 @@ class Inspector {
 	public function update() {
 		logic.update();
 	}
+	public function destroy() {
+		ui.remove();
+	}
 }
 #end

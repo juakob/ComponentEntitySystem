@@ -98,7 +98,7 @@ class EntityState {
 	}
 
 	public function removeListeneing(aMessage:MessageID, aSystem:Int, aOverrideData:Dynamic = null, aBroadcast:Bool = false):Void {
-		mListener.push(new ListenerAux(aSystem, aMessage, aOverrideData, aBroadcast));
+		mListener.push(new ListenerAux(aSystem, aMessage,false, aOverrideData, aBroadcast));
 	}
 
 	public function addProperty(aProperty:Property, aDelete:Bool = false):Void {

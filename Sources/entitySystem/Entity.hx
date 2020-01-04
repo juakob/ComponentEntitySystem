@@ -151,6 +151,7 @@ class Entity {
 
 	public function removeListener(aMessage:MessageID, aListenerId:Int):Bool {
 		var listeners = Listening.get(aMessage);
+		if(listeners==null) return false;
 		var index:Int = -1;
 		var counter:Int = 0;
 		var broadcast:Bool = false;
