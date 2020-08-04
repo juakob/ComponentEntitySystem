@@ -244,9 +244,10 @@ class Entity {
 		// var properties = mProperties.iterator();
 		// for (property in properties)
 		// {
-		// ES.i.storeProperty(property);
+		// ES.i.storeProperty(property); 
 		// }
-		mProperties = null;
+
+		//mProperties = null; //avoid lost reference in deleted objects that are still in messages
 		Systems = null;
 		Listening = null;
 		for (listener in mBroadcast) {

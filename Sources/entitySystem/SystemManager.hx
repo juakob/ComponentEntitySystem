@@ -262,8 +262,10 @@ class SystemManager {
 	}
 
 	public function removeEntity(aEntity:Entity, aSystemId:Int) {
-		aEntity.removeSystem(aSystemId);
-		mSystemsDictionary.get(aSystemId).remove(aEntity);
+		if(aEntity!=null){
+			aEntity.removeSystem(aSystemId);
+			mSystemsDictionary.get(aSystemId).remove(aEntity);
+		}
 	}
 
 	public function unsubscribeEntity(aEntity:Entity, aMessage:MessageID, aListener:Int) {

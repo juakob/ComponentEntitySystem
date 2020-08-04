@@ -73,12 +73,11 @@ class Message {
 	public static function clearPool():Void {
 		i_weak.splice(0, i_weak.length);
 		index = 0;
-		messageMap = new Map();
 		messageIndex=0;
 	}
 
-	public static var messageMap:Map<String, Int> = new Map();
-	public static var messageIndex:Int = 0;
+	 static var messageMap:Map<String, Int> = new Map();
+	 static var messageIndex:Int = 0;
 
 	macro public static function id(message:String) {
 		#if RELEASE
